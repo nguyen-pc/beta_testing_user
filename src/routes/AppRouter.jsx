@@ -7,6 +7,7 @@ import Blog from "../pages/home/Blog";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Analytics from "../pages/dashboard/Analytics";
 import User from "../pages/dashboard/User";
+import Profile from "../pages/profile/Profile";
 
 export default function AppRouter() {
   return (
@@ -15,6 +16,7 @@ export default function AppRouter() {
         <Route path="/" element={<Blog />} />
         <Route path="/signin" element={<SignInSide />} />
         <Route path="/signup" element={<SignUpSide />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/home_signup" element={<HomeSignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
