@@ -14,6 +14,13 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ColorModeIconDropdown from "../../theme/ColorModeIconDropdown";
 import Sitemark from "../../components/home/SitemarkIcon";
 import Link from "@mui/material/Link";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { callLogout } from "../../config/api";
+import { setLogoutAction } from "../../redux/slice/accountSlide";
+import { useNavigate } from "react-router-dom";
+import { Alert, List, ListItemButton, ListItemText } from "@mui/material";
+import Popover from "@mui/material/Popover";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
@@ -32,11 +39,49 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 export default function AppAppBar() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [open, setOpen] = React.useState(false);
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const handleDialogOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDialogClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openPopover = Boolean(anchorEl);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
+
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
+  const user = useAppSelector((state) => state.account.user);
+
+  const handleLogout = async () => {
+    const res = await callLogout();
+    console.log("handleLogout", res);
+    if (res && res && +res.statusCode === 200) {
+      dispatch(setLogoutAction({}));
+      <Alert variant="filled" severity="success">
+        Đăng xuất thành công!
+      </Alert>;
+      navigate("/");
+    }
+  };
+
+  // const handleDialogOpen = () => {
+  //   setDialogOpen(true);
+  // };
+  // const handleDialogClose = () => {
+  //   setDialogOpen(false);
+  // };
 
   return (
     <AppBar
@@ -93,14 +138,75 @@ export default function AppAppBar() {
               alignItems: "center",
             }}
           >
-            <Button color="primary" variant="text" size="small">
-              Sign in
-            </Button>
-            <Button color="primary" variant="contained" size="small">
-              <Link href="/home_signup" underline="none" color="inherit">
-                Sign up
-              </Link>
-            </Button>
+            {!isAuthenticated ? (
+              <>
+                <Button color="primary" variant="text" size="small">
+                  <Link href="/signin" underline="none" color="inherit">
+                    Sign in
+                  </Link>
+                </Button>
+                <Button color="primary" variant="contained" size="small">
+                  <Link href="/home_signup" underline="none" color="inherit">
+                    Sign up
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <IconButton onClick={handleDialogOpen}>
+                  <AccountCircleIcon fontSize="large" />
+                </IconButton>
+                <Popover
+                  open={openPopover}
+                  anchorEl={anchorEl}
+                  onClose={handleDialogClose}
+                  anchorOrigin={{
+                    vertical: "bottom", // nằm dưới icon
+                    horizontal: "right", // sát cạnh phải icon
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                >
+                  <List>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate("/dashboard");
+                        handleDialogClose();
+                      }}
+                    >
+                      <ListItemText primary="Dashboard" />
+                    </ListItemButton>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate("/profile");
+                        handleDialogClose();
+                      }}
+                    >
+                      <ListItemText primary="Profile" />
+                    </ListItemButton>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate("/payments");
+                        handleDialogClose();
+                      }}
+                    >
+                      <ListItemText primary="Payments" />
+                    </ListItemButton>
+                    <ListItemButton
+                      onClick={() => {
+                        handleLogout();
+                        handleDialogClose();
+                      }}
+                    >
+                      <ListItemText primary="Logout" />
+                    </ListItemButton>
+                  </List>
+                </Popover>
+              </>
+            )}
+
             <ColorModeIconDropdown />
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1 }}>

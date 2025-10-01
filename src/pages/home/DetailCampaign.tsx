@@ -3,11 +3,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import AppTheme from '../../theme/AppTheme';
 import AppAppBar from '../../components/home/AppAppBar';
-import MainContent from '../../components/home/MainContent';
-import Latest from '../../components/home/Latest';
 import Footer from '../../components/home/Footer';
+import Detail from '../../components/home/Detail';
 
-export default function Blog(props: { disableCustomTheme?: boolean }) {
+export default function DetailCampaign(props: { disableCustomTheme?: boolean }) {
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
@@ -18,8 +17,7 @@ export default function Blog(props: { disableCustomTheme?: boolean }) {
         component="main"
         sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
       >
-        <MainContent />
-        <Latest />
+        <Detail />
       </Container>
       <Footer />
     </AppTheme>

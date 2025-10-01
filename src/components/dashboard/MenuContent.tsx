@@ -17,7 +17,7 @@ import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, path: '/dashboard' },
   { text: 'User', icon: <HomeRoundedIcon />, path: '/dashboard/user' },
-  { text: 'Analytics', icon: <AnalyticsRoundedIcon />, path: '/dashboard/analytics' },
+  { text: 'Projects', icon: <AnalyticsRoundedIcon />, path: '/dashboard/projects' },
   { text: 'Clients', icon: <PeopleRoundedIcon />, path: '/dashboard/clients' },
   { text: 'Tasks', icon: <AssignmentRoundedIcon />, path: '/dashboard/tasks' },
 ];
