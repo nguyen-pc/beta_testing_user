@@ -5,6 +5,15 @@ import {
   type IPermission,
   type IRole,
   type IModelPaginate,
+  type IProject,
+  type IUseCase,
+  type IScenario,
+  type ITestcase,
+  type ISurvey,
+  type IQuestion,
+  type IUserProfile,
+  type ITesterCampaign,
+  type ITesterCampaignStatus,
 } from "./../types/backend.d";
 
 import axios from "../config/axios-customize";
@@ -88,3 +97,224 @@ export const callResetPassword = (token: string, newPassword: string) => {
     { newPassword }
   );
 };
+
+// Module Project
+
+export const callFetchAllProjects = (query: string) => {
+  console.log("callFetchAllProjects", { query });
+  return axios.get<IBackendRes<IModelPaginate<IProject>>>(
+    `/api/v1/projects?${query}`
+  );
+};
+
+export const callUpdateProject = (id: number, data: IProject) => {
+  console.log("callUpdateProject", { id, data });
+  return axios.put<IBackendRes<IProject>>(
+    `/api/v1/projects/update/${id}`,
+    data
+  );
+};
+
+export const callGetProject = (id: number) => {
+  return axios.get<IBackendRes<IProject>>(`/api/v1/projects/${id}`);
+};
+export const callFetchProjectByCompany = (id: string, query: string) => {
+  console.log("callFetchProjectByCompany", { id, query });
+  return axios.get<IBackendRes<IModelPaginate<IProject>>>(
+    `/api/v1/projects/all/${id}?${query}`
+  );
+};
+
+export const callDeleteProject = (id: string) => {
+  console.log("callDeleteProject", { id });
+  return axios.delete<IBackendRes<null>>(`/api/v1/projects/${id}`);
+};
+
+//Module Campaign
+
+export const callFetchCampaignByProject = (id: string, query: string) => {
+  console.log("callFetchCampaignByProject", { id, query });
+  return axios.get<IBackendRes<IModelPaginate<ICampaign>>>(
+    `/api/v1/project/${id}/campaigns?${query}`
+  );
+};
+
+export const callGetCampaign = (id: number) => {
+  return axios.get<IBackendRes<ICampaign>>(`/api/v1/campaign/${id}`);
+};
+export const callCreateCampaign = (data: ICampaign) => {
+  console.log("callCreateCampaign", data);
+  return axios.post<IBackendRes<ICampaign>>("/api/v1/campaign/create", data);
+};
+
+// Module Campaign
+export const callGetUseCasesByCampaign = (
+  campaignId: string,
+  query: string
+) => {
+  return axios.get<IBackendRes<IModelPaginate<IUseCase>>>(
+    `/api/v1/usecase/campaign/${campaignId}?${query}`
+  );
+};
+
+export const callCreateUseCase = (data: Partial<IUseCase>) => {
+  return axios.post<IBackendRes<IUseCase>>("/api/v1/usecase/create", data);
+};
+
+export const callUpdateUseCase = (id: number, data: Partial<IUseCase>) => {
+  return axios.put<IBackendRes<IUseCase>>(`/api/v1/usecase/update/${id}`, data);
+};
+
+export const callDeleteUseCase = (id: number) => {
+  return axios.delete<IBackendRes<null>>(`/api/v1/usecase/delete/${id}`);
+};
+
+// Module Scenario
+export const callGetScenariosByUseCase = (useCaseId: number, query: string) => {
+  return axios.get<IBackendRes<IModelPaginate<IScenario>>>(
+    `/api/v1/usecase/${useCaseId}/test_scenario?${query}`
+  );
+};
+
+export const callCreateScenario = (data: IScenario) => {
+  console.log("callCreateScenario", data);
+  return axios.post<IBackendRes<IScenario>>(
+    "/api/v1/usecase/test_scenario/create",
+    data
+  );
+};
+
+export const callUpdateScenario = (id: number, data: Partial<IScenario>) => {
+  console.log(data, id);
+  return axios.put<IBackendRes<IScenario>>(
+    `/api/v1/usecase/test_scenario/update/${id}`,
+    data
+  );
+};
+
+export const callDeleteScenario = (id: number) => {
+  return axios.delete<IBackendRes<null>>(
+    `/api/v1/usecase/test_scenario/delete/${id}`
+  );
+};
+
+// Module Testcase
+export const callGetTestcasesByScenario = (
+  scenarioId: string,
+  query: string
+) => {
+  return axios.get<IBackendRes<IModelPaginate<ITestcase>>>(
+    `/api/v1/usecase/test_scenario/${scenarioId}/testcase?${query}`
+  );
+};
+
+export const callCreateTestcase = (data: Partial<ITestcase>) => {
+  console.log("callCreateTestcase", data);
+  return axios.post<IBackendRes<ITestcase>>(
+    "/api/v1/usecase/test_scenario/testcase/create",
+    data
+  );
+};
+
+export const callUpdateTestcase = (id: number, data: Partial<ITestcase>) => {
+  console.log("callUpdateTestcase", { id, data });
+  return axios.put<IBackendRes<ITestcase>>(
+    `/api/v1/usecase/test_scenario/testcase/update/${id}`,
+    data
+  );
+};
+
+export const callDeleteTestcase = (id: number) => {
+  return axios.delete<IBackendRes<null>>(
+    `/api/v1/usecase/test_scenario/testcase/delete/${id}`
+  );
+};
+
+export async function callCreateSurvey(campaignId: string, data: ISurvey) {
+  console.log("Creating survey on server:", data);
+  return axios.post<IBackendRes<ISurvey>>(
+    `/api/v1/campaign/${campaignId}/survey`,
+    data
+  );
+}
+
+// question
+export async function callCreateQuestion(
+  projectId: string,
+  campaignId: string,
+  surveyId: string,
+  data: Partial<IQuestion>
+) {
+  console.log("Creating question on server:", data);
+  return axios.post<IBackendRes<IQuestion>>(
+    `/api/v1/project/${projectId}/campaign/${campaignId}/survey/${surveyId}/question`,
+    data
+  );
+}
+
+export async function callDeleteQuestion(
+  projectId: string,
+  campaignId: string,
+  surveyId: string,
+  questionId: string
+) {
+  console.log("Deleting question on server:", questionId);
+  return axios.delete<IBackendRes<null>>(
+    `/api/v1/project/${projectId}/campaign/${campaignId}/survey/${surveyId}/question/${questionId}`
+  );
+}
+
+//recruiting campaign
+export async function callCreateRecruitingCampaign(data: ICampaign) {
+  console.log("callCreateRecruitingCampaign", data);
+  return axios.post<IBackendRes<ICampaign>>(
+    "/api/v1/recruit-profile/create",
+    data
+  );
+}
+
+//user profile
+export async function callCreateUserProfile(
+  userId: string,
+  data: IUserProfile
+) {
+  console.log("callCreateUserProfile", data);
+  return axios.post<IBackendRes<IUserProfile>>(
+    `/api/v1/user/profile/${userId}`,
+    data
+  );
+}
+
+export async function callGetUserProfile(userId: string) {
+  console.log("callGetUserProfile", userId);
+  return axios.get<IBackendRes<IUserProfile>>(`/api/v1/user/profile/${userId}`);
+}
+
+// Apply campaign
+export async function callApplyCampaign(data: ITesterCampaign) {
+  console.log("callApplyCampaign", data);
+  return axios.post<IBackendRes<ITesterCampaign>>(
+    `/api/v1/campaign/tester-campaign/apply`,
+    data
+  );
+}
+
+export async function callGetTesterCampaignStatus(
+  userId: string,
+  campaignId: string
+) {
+  console.log("callGetTesterCampaignStatus", { userId, campaignId });
+  return axios.get<IBackendRes<ITesterCampaignStatus>>(
+    `/api/v1/campaign/${campaignId}/tester-campaign/status`,
+    {
+      params: { userId },
+    }
+  );
+}
+
+export async function callGetCampaignByUser(userId: string) {
+  console.log("callGetCampaignByUser", userId);
+  return axios.get<IBackendRes<IModelPaginate<any>>>(
+    `/api/v1/campaign/tester-campaigns/user/${userId}`
+  );
+}

@@ -4,7 +4,7 @@ import Container from '@mui/material/Container';
 import AppTheme from '../../theme/AppTheme';
 import AppAppBar from '../../components/home/AppAppBar';
 import Footer from '../../components/home/Footer';
-import Detail from '../../components/home/Detail';
+import Detail from '../../components/home/DetailCampaign';
 
 export default function DetailCampaign(props: { disableCustomTheme?: boolean }) {
   return (
