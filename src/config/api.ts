@@ -318,3 +318,50 @@ export async function callGetCampaignByUser(userId: string) {
     `/api/v1/campaign/tester-campaigns/user/${userId}`
   );
 }
+
+// complete test case execution
+
+export async function callCompleteTestExecution(
+  data : any
+) {
+  console.log("callCompleteTestExecution", { data });
+  return axios.post<IBackendRes<any>>(
+    `/api/v1/test-execution`, data
+  );
+}
+
+export async function callGetTestExecutionsByCampaignAndUser(
+  campaignId: string,
+  userId: string
+) {
+  console.log("callGetTestExecutionsByCampaignAndUser", { campaignId, userId });
+  return axios.get<IBackendRes<ITestExecution[]>>(
+    `/api/v1/test-execution/campaign/${campaignId}/user/${userId}`
+  );
+}
+
+// upload recording
+
+export async function uploadRecording(
+  file: File,
+  campaignId: number,
+  testerId?: number
+) {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("campaignId", String(campaignId));
+  if (testerId) form.append("testerId", String(testerId));
+
+  const res = await fetch(`/api/recordings/upload`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error("Upload failed");
+  // return URL or message
+  try {
+    const json = await res.json();
+    return json?.url || json?.message;
+  } catch {
+    return undefined;
+  }
+}

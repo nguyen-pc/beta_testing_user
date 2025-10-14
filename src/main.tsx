@@ -6,6 +6,7 @@ import { StyledEngineProvider } from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "./redux/stores.ts";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import TestFlowProvider from "./pages/testflow/TestFlowProvider.tsx";
 const clientId =
   "249173082038-6jargmsmn85j1mvg5c14cmaub7hg5r77.apps.googleusercontent.com";
 
@@ -14,7 +15,9 @@ createRoot(document.getElementById("root")!).render(
     <StyledEngineProvider injectFirst>
       <GoogleOAuthProvider clientId={clientId}>
         <Provider store={store}>
-          <App />,
+          <TestFlowProvider>
+            <App />,
+          </TestFlowProvider>
         </Provider>
       </GoogleOAuthProvider>
     </StyledEngineProvider>

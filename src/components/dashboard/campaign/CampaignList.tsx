@@ -112,7 +112,7 @@ export default function CampaignList() {
 
   const handleDetailClick = (campaignId: number, status: string) => {
     if (status === "APPROVED") {
-      navigate(`/home/detail/${campaignId}`);
+      navigate(`/home/detail/user/${campaignId}`);
     } else {
       alert(
         "❗ Bạn chỉ có thể xem chi tiết khi chiến dịch được phê duyệt (APPROVED)."
@@ -137,6 +137,7 @@ export default function CampaignList() {
                     onClick={() => handleDetailClick(campaign.id, item.status)}
                     variant="outlined"
                     tabIndex={0}
+                    sx={{ maxWidth: 360, minWidth: 360, px: "auto" }}
                   >
                     <CardMedia
                       component="img"
