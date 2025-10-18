@@ -342,26 +342,52 @@ export async function callGetTestExecutionsByCampaignAndUser(
 
 // upload recording
 
-export async function uploadRecording(
-  file: File,
-  campaignId: number,
-  testerId?: number
-) {
-  const form = new FormData();
-  form.append("file", file);
-  form.append("campaignId", String(campaignId));
-  if (testerId) form.append("testerId", String(testerId));
+// export async function uploadRecording(
+//   file: File,
+//   campaignId: number,
+//   testerId?: number
+// ) {
+//   const form = new FormData();
+//   form.append("file", file);
+//   form.append("campaignId", String(campaignId));
+//   if (testerId) form.append("testerId", String(testerId));
 
-  const res = await fetch(`/api/recordings/upload`, {
-    method: "POST",
-    body: form,
+//   const res = await fetch(`/api/recordings/upload`, {
+//     method: "POST",
+//     body: form,
+//   });
+//   if (!res.ok) throw new Error("Upload failed");
+//   // return URL or message
+//   try {
+//     const json = await res.json();
+//     return json?.url || json?.message;
+//   } catch {
+//     return undefined;
+//   }
+// }
+
+// Upload File Attachment
+export const uploadRecording = (file: any, folderType: string, uploader: string) => {
+  const bodyFormData = new FormData();
+  bodyFormData.append("file", file);
+  bodyFormData.append("folder", folderType);
+  bodyFormData.append("uploader", uploader);
+
+  return axios<IBackendRes<{ fileName: string }>>({
+    method: "post",
+    url: "/api/v1/attachment",
+    data: bodyFormData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
-  if (!res.ok) throw new Error("Upload failed");
-  // return URL or message
-  try {
-    const json = await res.json();
-    return json?.url || json?.message;
-  } catch {
-    return undefined;
-  }
+};
+
+//update tester campaign to mark uploaded
+export async function callMarkUploadedTesterCampaign(data: any) {
+  console.log("callMarkUploadedTesterCampaign", data);
+  return axios.put<IBackendRes<any>>(
+    `/api/v1/campaign/tester-campaign/upload`,
+    data
+  );
 }

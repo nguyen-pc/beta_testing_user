@@ -9,7 +9,12 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTestFlow } from "./TestFlowProvider";
-import { callGetCampaign, uploadRecording } from "../../config/api";
+import {
+  callGetCampaign,
+  callGetTesterCampaignStatus,
+  callMarkUploadedTesterCampaign,
+  uploadRecording,
+} from "../../config/api";
 import { useAppSelector } from "../../redux/hooks";
 import UseCaseSection from "../../components/home/UseCaseSection";
 
@@ -39,7 +44,7 @@ export default function TestScenario() {
     }
     setIsLoading(false);
   }, [campaignId]);
-  console.log(campaign);
+  console.log(campaignId);
 
   const checkUserStatus = React.useCallback(async () => {
     if (!user?.id || !campaignId) return;
@@ -102,12 +107,30 @@ export default function TestScenario() {
     setUploading(true);
     try {
       // Test thử
-      navigate(`/testflow/${campaignId}/bug_report`);
+
       const file = new File([lastBlob], `recording-${Date.now()}.webm`, {
         type: lastBlob.type,
       });
-      const url = await uploadRecording(file, Number(campaignId), user?.id);
-      setDoneUrl(url || "Uploaded successfully!");
+      const res = await uploadRecording(file, Number(campaignId), user?.id);
+      setDoneUrl(res.data?.fileName || "Uploaded successfully!");
+      console.log("Kết quả upload:", res, campaignId, user?.id, doneUrl);
+
+      if (res.data?.fileName) {
+        // 🟢 2️⃣ Cập nhật trạng thái upload cho TesterCampaign
+        const payload = {
+          userId: user.id,
+          campaignId,
+          fileName: res.data?.fileName,
+        };
+        console.log("Gọi callMarkUploadedTesterCampaign với payload:", payload);
+        const resUpdateStatus = await callMarkUploadedTesterCampaign(payload);
+        console.log("Kết quả cập nhật TesterCampaign:", resUpdateStatus);
+        console.log("✅ Đã cập nhật TesterCampaign upload thành công");
+      } else {
+        console.warn("⚠️ Không có fileName trả về từ uploadRecording");
+      }
+
+      navigate(`/testflow/${campaignId}/bug_report`);
     } finally {
       setUploading(false);
     }

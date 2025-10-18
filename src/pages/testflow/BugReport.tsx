@@ -130,7 +130,7 @@ export default function BugReport() {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => window.location.assign(`/campaign/${campaignId}`)}
+          onClick={() => window.location.assign(`/home/detail/user/${campaignId}`)}
         >
           ← Back to Campaign
         </Button>
