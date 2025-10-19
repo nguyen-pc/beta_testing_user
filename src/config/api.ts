@@ -321,13 +321,9 @@ export async function callGetCampaignByUser(userId: string) {
 
 // complete test case execution
 
-export async function callCompleteTestExecution(
-  data : any
-) {
+export async function callCompleteTestExecution(data: any) {
   console.log("callCompleteTestExecution", { data });
-  return axios.post<IBackendRes<any>>(
-    `/api/v1/test-execution`, data
-  );
+  return axios.post<IBackendRes<any>>(`/api/v1/test-execution`, data);
 }
 
 export async function callGetTestExecutionsByCampaignAndUser(
@@ -367,7 +363,11 @@ export async function callGetTestExecutionsByCampaignAndUser(
 // }
 
 // Upload File Attachment
-export const uploadRecording = (file: any, folderType: string, uploader: string) => {
+export const uploadRecording = (
+  file: any,
+  folderType: string,
+  uploader: string
+) => {
   const bodyFormData = new FormData();
   bodyFormData.append("file", file);
   bodyFormData.append("folder", folderType);
@@ -389,5 +389,77 @@ export async function callMarkUploadedTesterCampaign(data: any) {
   return axios.put<IBackendRes<any>>(
     `/api/v1/campaign/tester-campaign/upload`,
     data
+  );
+}
+
+// Survey
+export async function callGetSurveysByCampaign(campaignId: string) {
+  console.log("callGetSurveysByCampaign", { campaignId });
+  return axios.get<IBackendRes<any>>(`/api/v1/campaign/${campaignId}/survey`);
+}
+// form
+
+export async function callGetSurvey(campaignId: string, surveyId: string) {
+  console.log("Fetching survey details for survey:", surveyId);
+  return axios.get<IBackendRes<any>>(
+    `/api/v1/campaign/${campaignId}/survey/${surveyId}`
+  );
+}
+
+export async function callGetForm(campaignId: string, surveyId: string) {
+  console.log("Fetching survey form for survey:", surveyId);
+  return axios.get<IBackendRes<any>>(
+    `/api/v1/campaign/${campaignId}/survey/${surveyId}/question/all`
+  );
+}
+
+export async function callSubmitForm(
+  campaignId: string,
+  surveyId: string,
+  data: any
+) {
+  console.log("Submitting survey form for survey:", surveyId, data);
+  return axios.post<IBackendRes<any>>(
+    `/api/v1/campaign/${campaignId}/survey/${surveyId}/response`,
+    data
+  );
+}
+
+export async function callCreateTesterSurvey(data: any) {
+  console.log("callCreateTesterSurvey", data);
+  return axios.post<IBackendRes<any>>(
+    `/api/v1/campaign/tester-survey/create`,
+    data
+  );
+}
+
+export async function callGetTesterSurveyStatus(
+  userId: string,
+  surveyId: string
+) {
+  console.log("callGetTesterSurveyStatus", { userId, surveyId });
+  return axios.get<IBackendRes<any>>(
+    `/api/v1/campaign/tester-survey/status?userId=${userId}&surveyId=${surveyId}`
+  );
+}
+
+// Create bug report
+export async function callCreateBugReport(data: any) {
+  console.log("callCreateBugReport", data);
+  return axios.post<IBackendRes<any>>(`/api/v1/bugs`, data);
+}
+
+export async function callGetBugTypes() {
+  console.log("callGetBugTypes");
+  return axios.get<IBackendRes<any>>(`/api/v1/bugs/bug-type`);
+}
+
+export async function callGetBugByUserAndCampaign(
+  userId: string,
+  campaignId: string
+) {
+  console.log("callGetBugByUserAndCampaign", { userId, campaignId });
+  return axios.get<IBackendRes<any>>(
+    `api/v1/bugs/filter?testerId=${userId}&campaignId=${campaignId}&page=0&size=15`
   );
 }

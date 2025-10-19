@@ -19,6 +19,7 @@ import KeepTabsOpen from "../pages/testflow/KeepTabsOpen";
 import StartScenario from "../pages/testflow/StartScenario";
 import TestScenario from "../pages/testflow/TestScenario";
 import TestFlow from "../pages/testflow/TestFlow";
+import SurveyForm from "../pages/testflow/ViewQuestion";
 
 export default function AppRouter() {
   return (
@@ -39,6 +40,7 @@ export default function AppRouter() {
         <Route path="/dashboard/user/*" element={<User />} />
 
         <Route path="/testflow/*" element={<TestFlow />} />
+        <Route path="/testflow/:campaignId/view_question/:surveyId" element={<SurveyForm />} />
       </Routes>
     </BrowserRouter>
   );

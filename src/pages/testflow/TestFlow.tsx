@@ -16,7 +16,9 @@ import KeepTabsOpen from "./KeepTabsOpen";
 import CampaignDetailUser from "../../components/home/DetailUserCampaign";
 import StartScenario from "./StartScenario";
 import TestScenario from "./TestScenario";
+import ViewQuestion from "./ViewQuestion";
 import BugReport from "./BugReport";
+import SurveyForm from "./ViewQuestion";
 
 export default function TestFlow(props: { disableCustomTheme?: boolean }) {
   return (
@@ -41,6 +43,7 @@ export default function TestFlow(props: { disableCustomTheme?: boolean }) {
               <Route path=":campaignId/start" element={<StartScenario />} />
               <Route path=":campaignId/scenario" element={<TestScenario />} />
               <Route path=":campaignId/bug_report" element={<BugReport />} />
+              {/* <Route path=":campaignId/view_question/:surveyId" element={<SurveyForm />} /> */}
               <Route path="*" element={<CampaignDetailUser />} />
             </Routes>
           </DialogsProvider>

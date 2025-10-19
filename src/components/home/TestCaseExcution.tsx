@@ -170,7 +170,7 @@ const TestCaseExecution: React.FC<UseCaseSectionProps> = ({
         fontWeight="bold"
         sx={{ mb: 2, color: "primary.main" }}
       >
-        🧪 Bug Report & Test Execution
+        Bug Report & Test Execution
       </Typography>
 
       {useCases.map((uc, index) => (
