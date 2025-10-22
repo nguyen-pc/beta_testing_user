@@ -29,6 +29,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   callApplyCampaign,
   callGetCampaign,
+  callGetStatusCampaignsByUser,
   callGetTesterCampaignStatus,
 } from "../../config/api";
 import { useAppSelector } from "../../redux/hooks";
@@ -38,6 +39,7 @@ import ScreenRecorder from "./ScreenRecorder";
 export default function CampaignDetailUser() {
   const { campaignId } = useParams();
   const [campaign, setCampaign] = React.useState(null);
+  const [TesterCampaign, setTesterCampaign] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
   const [open, setOpen] = React.useState(false);
@@ -55,12 +57,20 @@ export default function CampaignDetailUser() {
       const showData = await callGetCampaign(campaignId);
 
       setCampaign(showData.data);
+      console.log("userId, campaignId", user?.id, campaignId);
+      const testerCampaignData = await callGetStatusCampaignsByUser(
+        campaignId || "",
+        user?.id || 0
+      );
+      setTesterCampaign(testerCampaignData.data);
+      console.log("TesterCampaign data:", testerCampaignData.data);
     } catch (showDataError) {
       setError(showDataError as Error);
     }
     setIsLoading(false);
   }, [campaignId]);
   console.log(campaign);
+  console.log("testercampaign",TesterCampaign);
 
   const checkUserStatus = React.useCallback(async () => {
     if (!user?.id || !campaignId) return;
@@ -278,12 +288,49 @@ export default function CampaignDetailUser() {
       {/* --- Use Cases (Dropdown style) --- */}
 
       <UseCaseSection useCases={campaign?.useCases || []} />
-      <Button
-        variant="contained"
-        onClick={() => navigate(`/testflow/${campaignId}/tips`)}
-      >
-        Start the test
-      </Button>
+      {/* --- Nếu tester đã upload video --- */}
+      {TesterCampaign?.uploadLink ? (
+        <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            🎥 Video bạn đã upload:
+          </Typography>
+
+          <video
+            controls
+            src={TesterCampaign.uploadLink}
+            style={{
+              width: "100%",
+              maxWidth: "1200px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            }}
+          />
+
+          <Box sx={{ mt: 3 }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() =>
+                navigate(`/testflow/${campaignId}/bug_report`)
+              }
+            >
+              Go to Bug Report
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        // Nếu chưa upload → hiển thị nút Start Test
+        <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate(`/testflow/${campaignId}/tips`)}
+          >
+            Start the test
+          </Button>
+        </Box>
+      )}
+
       {/* <ScreenRecorder /> */}
     </Container>
   );

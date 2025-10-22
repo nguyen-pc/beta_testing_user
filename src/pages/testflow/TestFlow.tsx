@@ -19,8 +19,10 @@ import TestScenario from "./TestScenario";
 import ViewQuestion from "./ViewQuestion";
 import BugReport from "./BugReport";
 import SurveyForm from "./ViewQuestion";
+import { useAppSelector } from "../../redux/hooks";
 
 export default function TestFlow(props: { disableCustomTheme?: boolean }) {
+  const user = useAppSelector((s) => s.account.user);
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
@@ -42,7 +44,7 @@ export default function TestFlow(props: { disableCustomTheme?: boolean }) {
               <Route path=":campaignId/tabs" element={<KeepTabsOpen />} />
               <Route path=":campaignId/start" element={<StartScenario />} />
               <Route path=":campaignId/scenario" element={<TestScenario />} />
-              <Route path=":campaignId/bug_report" element={<BugReport />} />
+              <Route path=":campaignId/bug_report" element={<BugReport userId={user.id} />} />
               {/* <Route path=":campaignId/view_question/:surveyId" element={<SurveyForm />} /> */}
               <Route path="*" element={<CampaignDetailUser />} />
             </Routes>

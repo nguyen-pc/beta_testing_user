@@ -23,10 +23,11 @@ import TestCaseExecution from "../../components/home/TestCaseExcution";
 import CreateBugReport from "../../components/home/CreateBugReport";
 import UserBugReportList from "../../components/home/UserBugReportList";
 
-export default function BugReport() {
+export default function BugReport({ userId }: { userId: number }) {
   const { campaignId } = useParams();
-  const user = useAppSelector((s) => s.account.user);
+  // const user = useAppSelector((s) => s.account.user);
 
+  console.log("user"+ userId)
   const [campaign, setCampaign] = useState<any>(null);
   const [surveyStatuses, setSurveyStatuses] = useState<Record<number, boolean>>(
     {}
@@ -47,7 +48,7 @@ export default function BugReport() {
       for (const s of resSurveys.data) {
         try {
           const resStatus = await callGetTesterSurveyStatus(
-            user?.id,
+            userId,
             s.surveyId
           );
           console.log("Survey status response:", resStatus);
