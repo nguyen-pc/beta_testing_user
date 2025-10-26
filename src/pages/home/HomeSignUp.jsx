@@ -29,7 +29,7 @@ export default function HomeSignUp() {
       <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full px-6">
         {/* Company Card */}
         <div
-          onClick={() => navigate("/signup")}
+          onClick={() => navigate("/signupCompany")}
           className={`cursor-pointer border rounded-xl p-8 text-center hover:shadow-md transition $ {
             role === "company" ? "border-purple-600" : "border-gray-300"
           }`}
@@ -52,7 +52,7 @@ export default function HomeSignUp() {
 
         {/* Beta Tester Card */}
         <div
-          onClick={() => setRole("tester")}
+          onClick={() => navigate("/signup")}
           className={`cursor-pointer border rounded-xl p-8 text-center hover:shadow-md transition $ {
             role === "tester" ? "border-purple-600" : "border-gray-300"
           }`}

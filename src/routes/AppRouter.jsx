@@ -2,6 +2,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import HomeSignUp from "../pages/home/HomeSignUp";
 import SignInSide from "../pages/auth/SignInSide";
 import SignUpSide from "../pages/auth/SignUpSign";
+import SignUpSideCompany from "../pages/auth/SignUpSignCompany";
+import SignUpSuccess from "../components/auth/signin/SignUpSuccess";
+import SignUpFailed from "../components/auth/signin/SignUpFailed";
 import Home from "../pages/home/Home";
 import ProjectShow from "../components/home/ProjectShow";
 import DetailCampaign from "../pages/home/DetailCampaign";
@@ -14,6 +17,7 @@ import Profile from "../pages/profile/Profile";
 
 import TestFlow from "../pages/testflow/TestFlow";
 import SurveyForm from "../pages/testflow/ViewQuestion";
+import ThankYouPage from "../pages/testflow/ThankYouPage";
 
 export default function AppRouter() {
   return (
@@ -22,6 +26,10 @@ export default function AppRouter() {
         <Route path="/home/*" element={<Home />} />
         <Route path="/signin" element={<SignInSide />} />
         <Route path="/signup" element={<SignUpSide />} />
+        <Route path="/signupCompany" element={<SignUpSideCompany />} />
+        <Route path="/signup-success" element={<SignUpSuccess />} />
+        <Route path="/signup-failed" element={<SignUpFailed />} />
+
         <Route path="/profile" element={<Profile />} />
         <Route path="/home/detail/:campaignId" element={<DetailCampaign />} />
         <Route
@@ -36,6 +44,7 @@ export default function AppRouter() {
 
         <Route path="/testflow/*" element={<TestFlow />} />
         <Route path="/testflow/:campaignId/view_question/:surveyId" element={<SurveyForm />} />
+        <Route path="/testflow/:campaignId/view_question/:surveyId/thank-you" element={<ThankYouPage />} />
       </Routes>
     </BrowserRouter>
   );

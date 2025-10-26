@@ -319,7 +319,10 @@ export async function callGetCampaignByUser(userId: string) {
   );
 }
 
-export async function callGetStatusCampaignsByUser(campaignId: string, userId: string) {
+export async function callGetStatusCampaignsByUser(
+  campaignId: string,
+  userId: string
+) {
   console.log("callGetStatusCampaignsByUser", userId);
   return axios.get<IBackendRes<any>>(
     `/api/v1/campaign/${campaignId}/tester-campaign/user/${userId}`
@@ -388,6 +391,28 @@ export const uploadRecording = (
       "Content-Type": "multipart/form-data",
     },
   });
+};
+
+
+export const uploadFileSurvey = (
+  file: any,
+  surveyId: number,
+  uploaderId: number
+) => {
+  const bodyFormData = new FormData();
+  bodyFormData.append("file", file);
+  bodyFormData.append("folder", surveyId.toString());
+  bodyFormData.append("uploader", uploaderId.toString());
+
+  return axios.post<IBackendRes<{ fileName: string }>>(
+    "/api/v1/files",
+    bodyFormData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 };
 
 //update tester campaign to mark uploaded
@@ -470,9 +495,7 @@ export async function callGetBugByUserAndCampaign(
     `api/v1/bugs/filter?testerId=${userId}&campaignId=${campaignId}&page=0&size=15`
   );
 }
-export async function callGetBugByUser(
-  userId: string,
-) {
+export async function callGetBugByUser(userId: string) {
   console.log("callGetBugByUser", { userId });
   return axios.get<IBackendRes<any>>(
     `api/v1/bugs/filter?testerId=${userId}&page=0&size=15`
@@ -481,25 +504,23 @@ export async function callGetBugByUser(
 
 export async function callGetDetailBugReport(bugId: string) {
   console.log("Fetching bug report detail:", bugId);
-  return axios.get<IBackendRes<any>>(
-    `/api/v1/bugs/${bugId}`
-  );
+  return axios.get<IBackendRes<any>>(`/api/v1/bugs/${bugId}`);
 }
-
 
 //chat
 
 export async function callGetBugChatMessages(bugId: string) {
   console.log("Fetching bug chat messages for bug:", bugId);
-  return axios.get<IBackendRes<any>>(
-    `/api/v1/bugs/${bugId}/chat`
-  );
+  return axios.get<IBackendRes<any>>(`/api/v1/bugs/${bugId}/chat`);
 }
 
 export async function callPostBugChatMessage(bugId: string, data: any) {
   console.log("Posting bug chat message for bug:", bugId, data);
-  return axios.post<IBackendRes<any>>(
-    `/api/v1/bugs/${bugId}/chat`,
-    data
-  );
+  return axios.post<IBackendRes<any>>(`/api/v1/bugs/${bugId}/chat`, data);
+}
+
+// sign up company
+export async function callRegisterCompany(companyData: any) {
+  console.log("callRegisterCompany", companyData);
+  return axios.post<IBackendRes<any>>("/api/v1/company/create", companyData);
 }

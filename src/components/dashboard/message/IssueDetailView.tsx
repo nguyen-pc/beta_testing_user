@@ -15,7 +15,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { callGetBugByUser, callGetDetailBugReport } from "../../../config/api";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import {
+  callGetBugByUser,
+  callGetDetailBugReport,
+  uploadRecording,
+} from "../../../config/api";
 import { useBugChat } from "../../../hooks/websocket/useBugChat";
 import { useAppSelector } from "../../../redux/hooks";
 import { formatChatTime } from "../../../util/timeFormatter";
@@ -48,6 +53,8 @@ export default function IssueDetailView() {
   const [newMsg, setNewMsg] = useState("");
   const [selectedBugId, setSelectedBugId] = useState<number | null>(null);
 
+  let campaignId = 0;
+
   // ✅ Chat realtime hook (tham số bugId động)
   const { messages, sendMessage, connected } = useBugChat(selectedBugId);
 
@@ -69,6 +76,7 @@ export default function IssueDetailView() {
     if (!user?.id) return;
     try {
       const res = await callGetBugByUser(user.id);
+      campaignId = res.data.result[0]?.campaignId || 0;
       const list = res.data?.result || res.data?.data || [];
       setRelatedIssues(list);
     } catch (err) {
@@ -92,6 +100,25 @@ export default function IssueDetailView() {
     if (!newMsg.trim() || !selectedBugId) return;
     sendMessage(newMsg, user.id, selectedBugId);
     setNewMsg("");
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const folderType = campaignId;
+      const uploader = user.id;
+      const res = await uploadRecording(file, folderType, uploader);
+
+      const fileName = res.data?.fileName;
+      if (fileName) {
+        const fileUrl = `http://localhost:8081/storage/${folderType}/${fileName}`;
+        sendMessage(`${fileUrl}`, user.id, selectedBugId);
+      }
+    } catch (err) {
+      console.error("File upload failed:", err);
+      alert("Upload file failed!");
+    }
   };
 
   return (
@@ -132,7 +159,9 @@ export default function IssueDetailView() {
           <Stack spacing={1}>
             {relatedIssues
               .filter((bug) =>
-                bug.title.toLowerCase().includes(searchTerm.toLowerCase())
+                (bug.title ?? "")
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase())
               )
               .map((bug) => (
                 <Paper
@@ -174,7 +203,7 @@ export default function IssueDetailView() {
           sx={{ p: 4 }}
         >
           <Typography color="text.secondary" fontSize={16}>
-             Hãy chọn một bug trong danh sách bên trái để xem chi tiết.
+            Hãy chọn một bug trong danh sách bên trái để xem chi tiết.
           </Typography>
         </Box>
       ) : loading ? (
@@ -264,6 +293,14 @@ export default function IssueDetailView() {
             >
               {messages.map((msg, i) => {
                 const isOwn = msg.senderId === user.id;
+                const content = msg.content.trim();
+
+                const urlMatch = content.match(/https?:\/\/\S+/);
+                const url = urlMatch ? urlMatch[0] : "";
+                const isFile = !!url;
+                const isImage = /\.(jpg|jpeg|png|gif)$/i.test(url);
+                const isVideo = /\.(mp4|webm)$/i.test(url);
+
                 return (
                   <ListItem
                     key={i}
@@ -290,7 +327,33 @@ export default function IssueDetailView() {
                         borderRadius: 2,
                       }}
                     >
-                      <Typography variant="body2">{msg.content}</Typography>
+                      {isFile ? (
+                        isImage ? (
+                          <img
+                            src={url}
+                            alt="attachment"
+                            style={{ maxWidth: "100%", borderRadius: 6 }}
+                          />
+                        ) : isVideo ? (
+                          <video
+                            src={url}
+                            controls
+                            style={{ maxWidth: "100%", borderRadius: 6 }}
+                          />
+                        ) : (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: isOwn ? "#fff" : "inherit" }}
+                          >
+                            {url}
+                          </a>
+                        )
+                      ) : (
+                        <Typography variant="body2">{content}</Typography>
+                      )}
+
                       <Typography
                         variant="caption"
                         sx={{ display: "block", opacity: 0.7 }}
@@ -298,6 +361,7 @@ export default function IssueDetailView() {
                         {msg.createdAt ? formatChatTime(msg.createdAt) : ""}
                       </Typography>
                     </Paper>
+
                     {isOwn && (
                       <ListItemAvatar sx={{ ml: 1 }}>
                         <Avatar>{user.name ? user.name[0] : "U"}</Avatar>
@@ -316,6 +380,19 @@ export default function IssueDetailView() {
                 fullWidth
                 size="small"
               />
+              <input
+                type="file"
+                id="chat-file-input"
+                hidden
+                onChange={handleFileUpload}
+              />
+              <IconButton
+                onClick={() =>
+                  document.getElementById("chat-file-input")?.click()
+                }
+              >
+                <AttachFileIcon />
+              </IconButton>
               <IconButton
                 onClick={handleSend}
                 color="primary"
