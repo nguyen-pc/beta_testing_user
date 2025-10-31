@@ -1,92 +1,138 @@
-import * as React from 'react';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Copyright from '../../internals/components/Copyright';
-import ChartUserByCountry from './ChartUserByCountry';
-import CustomizedTreeView from './CustomizedTreeView';
-import CustomizedDataGrid from './CustomizedDataGrid';
-import HighlightedCard from './HighlightedCard';
-import PageViewsBarChart from './PageViewsBarChart';
-import SessionsChart from './SessionsChart';
-import StatCard from './StatCard';
-import type { StatCardProps } from './StatCard';
-const data: StatCardProps[] = [
-  {
-    title: 'Users',
-    value: '14k',
-    interval: 'Last 30 days',
-    trend: 'up',
-    data: [
-      200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340, 380,
-      360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920,
-    ],
-  },
-  {
-    title: 'Conversions',
-    value: '325',
-    interval: 'Last 30 days',
-    trend: 'down',
-    data: [
-      1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600, 820,
-      780, 800, 760, 380, 740, 660, 620, 840, 500, 520, 480, 400, 360, 300, 220,
-    ],
-  },
-  {
-    title: 'Event count',
-    value: '200k',
-    interval: 'Last 30 days',
-    trend: 'neutral',
-    data: [
-      500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510, 530,
-      520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
-    ],
-  },
-];
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Grid,
+  Typography,
+  CircularProgress,
+  useTheme,
+} from "@mui/material";
+import StatCard from "./StatCard";
+import HighlightedCard from "./HighlightedCard";
+import Copyright from "../../internals/components/Copyright";
+import PageViewsBarChart from "./PageViewsBarChart";
+import SessionsChart from "./SessionsChart";
+import { useAppSelector } from "../../redux/hooks";
+import { callGetTesterDashboardStats } from "../../config/api";
 
 export default function MainGrid() {
+  const user = useAppSelector((state) => state.account.user);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const theme = useTheme();
+
+  // 🧩 Fetch API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        if (!user?.id) return;
+        setLoading(true);
+        const res = await callGetTesterDashboardStats(user.id);
+        setStats(res.data);
+      } catch (error) {
+        console.error("Error fetching tester dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          py: 10,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <Typography align="center" sx={{ mt: 5 }}>
+        No data available.
+      </Typography>
+    );
+  }
+
+  // === Chuẩn hóa dữ liệu ===
+  const cards = [
+    {
+      title: "Campaigns Joined",
+      value: stats.totalCampaigns ?? 0,
+      interval: "Last 6 months",
+      trend: "up",
+      color: theme.palette.primary.main,
+      data: stats.campaignTrend ?? [],
+    },
+    {
+      title: "Bugs Reported",
+      value: stats.totalBugs ?? 0,
+      interval: "Last 6 months",
+      trend: "up",
+      color: theme.palette.error.main,
+      data: stats.bugTrend ?? [],
+    },
+    {
+      title: "Surveys Completed",
+      value: stats.totalSurveys ?? 0,
+      interval: "Last 6 months",
+      trend: "neutral",
+      color: theme.palette.info.main,
+      data: stats.surveyTrend ?? [],
+    },
+    {
+      title: "Total Rewards",
+      value: `${stats.totalRewards?.toLocaleString("en-US")} ₫`,
+      interval: "Approved rewards",
+      trend: "up",
+      color: theme.palette.success.main,
+      data: [],
+    },
+  ];
+
   return (
-    <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
-      {/* cards */}
+    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
+      {/* === TITLE === */}
       <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
         Overview
       </Typography>
+
+      {/* === GRID CARDS === */}
       <Grid
         container
         spacing={2}
         columns={12}
         sx={{ mb: (theme) => theme.spacing(2) }}
       >
-        {data.map((card, index) => (
-          <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-            <StatCard {...card} />
+        {cards.map((card, index) => (
+          <Grid key={index} xs={12} sm={6} lg={3}>
+            <StatCard
+              title={card.title}
+              value={card.value}
+              interval={card.interval}
+              trend={card.trend as any}
+              data={card.data}
+              color={card.color}
+            />
           </Grid>
         ))}
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-          <HighlightedCard />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+
+
+        {/* === Biểu đồ phụ === */}
+        {/* <Grid xs={12} md={6}>
           <SessionsChart />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid xs={12} md={6}>
           <PageViewsBarChart />
-        </Grid>
+        </Grid> */}
       </Grid>
-      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Details
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, lg: 9 }}>
-          <CustomizedDataGrid />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: 'column', sm: 'row', lg: 'column' }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
-          </Stack>
-        </Grid>
-      </Grid>
+
       <Copyright sx={{ my: 4 }} />
     </Box>
   );

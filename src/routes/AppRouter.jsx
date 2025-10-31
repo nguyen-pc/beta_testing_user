@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import HomeSignUp from "../pages/home/HomeSignUp";
 import SignInSide from "../pages/auth/SignInSide";
 import SignUpSide from "../pages/auth/SignUpSign";
@@ -18,11 +18,13 @@ import Profile from "../pages/profile/Profile";
 import TestFlow from "../pages/testflow/TestFlow";
 import SurveyForm from "../pages/testflow/ViewQuestion";
 import ThankYouPage from "../pages/testflow/ThankYouPage";
+import Checkout from "../pages/profile/Checkout";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home/*" element={<Home />} />
         <Route path="/signin" element={<SignInSide />} />
         <Route path="/signup" element={<SignUpSide />} />
@@ -43,8 +45,15 @@ export default function AppRouter() {
         <Route path="/dashboard/message/*" element={<Message />} />
 
         <Route path="/testflow/*" element={<TestFlow />} />
-        <Route path="/testflow/:campaignId/view_question/:surveyId" element={<SurveyForm />} />
-        <Route path="/testflow/:campaignId/view_question/:surveyId/thank-you" element={<ThankYouPage />} />
+        <Route
+          path="/testflow/:campaignId/view_question/:surveyId"
+          element={<SurveyForm />}
+        />
+        <Route
+          path="/testflow/:campaignId/view_question/:surveyId/thank-you"
+          element={<ThankYouPage />}
+        />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </BrowserRouter>
   );

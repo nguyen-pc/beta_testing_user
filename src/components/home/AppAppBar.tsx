@@ -99,21 +99,44 @@ export default function AppAppBar() {
           <Box
             sx={{ flexGrow: 1, display: "flex", alignItems: "center", px: 0 }}
           >
-            <Sitemark />
+            <Box onClick={() => navigate("/home")} sx={{ cursor: "pointer" }}>
+              <Sitemark />
+            </Box>
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <Button variant="text" color="info" size="small">
-                Features
+              <Button
+                onClick={() => navigate("/home/campaigns")}
+                variant="text"
+                color="info"
+                size="small"
+              >
+                Campaign
               </Button>
-              <Button variant="text" color="info" size="small">
-                Testimonials
+              <Button
+                onClick={() => navigate("/home/tester")}
+                variant="text"
+                color="info"
+                size="small"
+              >
+                Tester
               </Button>
-              <Button variant="text" color="info" size="small">
-                Highlights
+              <Button
+                onClick={() => navigate("/home/company")}
+                variant="text"
+                color="info"
+                size="small"
+              >
+                Company
               </Button>
-              <Button variant="text" color="info" size="small">
+              <Button
+                onClick={() => navigate("/home/pricing")}
+                variant="text"
+                color="info"
+                size="small"
+              >
                 Pricing
               </Button>
               <Button
+                onClick={() => navigate("/home/faq")}
                 variant="text"
                 color="info"
                 size="small"

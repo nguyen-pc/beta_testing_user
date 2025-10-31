@@ -10,6 +10,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { callGetUserProfile } from "../../config/api";
 
 const mapUserProfileToFormData = (profile: any): ProfileData => {
+  console.log("mapping profile", profile);
   return {
     birthYear: profile.age
       ? String(new Date().getFullYear() - profile.age)
@@ -172,6 +173,7 @@ export default function BasicTabs() {
       try {
         if (isAuthenticated && user) {
           const res = await callGetUserProfile(user.id);
+          console.log("fetched profile", res.data);
           const profileData = mapUserProfileToFormData(res.data);
           const profileArray = convertProfileToArray(profileData);
           setProfile(profileArray);

@@ -147,6 +147,19 @@ export const callCreateCampaign = (data: ICampaign) => {
   return axios.post<IBackendRes<ICampaign>>("/api/v1/campaign/create", data);
 };
 
+export const callGetCampaignActive = () => {
+  return axios.get<IBackendRes<IModelPaginate<ICampaign>>>(
+    `/api/v1/campaigns/active-approved`
+  );
+};
+
+export const callGetCampaignUpcoming = () => {
+  return axios.get<IBackendRes<IModelPaginate<ICampaign>>>(
+    `/api/v1/campaigns/upcoming`
+  );
+};
+
+
 // Module Campaign
 export const callGetUseCasesByCampaign = (
   campaignId: string,
@@ -329,6 +342,13 @@ export async function callGetStatusCampaignsByUser(
   );
 }
 
+export async function callGetRecommendedCampaigns(userId: string) { 
+  console.log("callGetRecommendedCampaigns", userId);
+  return axios.get<IBackendRes<any>>(
+    `/api/v1/recommend/campaigns/${userId}`
+  );
+}
+
 // complete test case execution
 
 export async function callCompleteTestExecution(data: any) {
@@ -392,7 +412,6 @@ export const uploadRecording = (
     },
   });
 };
-
 
 export const uploadFileSurvey = (
   file: any,
@@ -523,4 +542,13 @@ export async function callPostBugChatMessage(bugId: string, data: any) {
 export async function callRegisterCompany(companyData: any) {
   console.log("callRegisterCompany", companyData);
   return axios.post<IBackendRes<any>>("/api/v1/company/create", companyData);
+}
+
+
+//statistic
+export async function callGetTesterDashboardStats(userId: string) {
+  console.log("callGetTesterDashboardStats", { userId });
+  return axios.get<IBackendRes<any>>(
+    `/api/v1/users/${userId}/statistic`
+  );
 }

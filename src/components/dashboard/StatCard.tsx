@@ -1,41 +1,26 @@
-import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
-import { areaElementClasses } from '@mui/x-charts/LineChart';
+import * as React from "react";
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
+import { areaElementClasses } from "@mui/x-charts/LineChart";
 
 export type StatCardProps = {
   title: string;
-  value: string;
+  value: string | number;
   interval: string;
-  trend: 'up' | 'down' | 'neutral';
+  trend: "up" | "down" | "neutral";
   data: number[];
 };
-
-function getDaysInMonth(month: number, year: number) {
-  const date = new Date(year, month, 0);
-  const monthName = date.toLocaleDateString('en-US', {
-    month: 'short',
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
-  while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
-  }
-  return days;
-}
 
 function AreaGradient({ color, id }: { color: string; id: string }) {
   return (
     <defs>
-      <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
+      <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor={color} stopOpacity={0.3} />
         <stop offset="100%" stopColor={color} stopOpacity={0} />
       </linearGradient>
@@ -51,78 +36,96 @@ export default function StatCard({
   data,
 }: StatCardProps) {
   const theme = useTheme();
-  const daysInWeek = getDaysInMonth(4, 2024);
 
+  // 🧭 6 tháng gần nhất (hiển thị theo thứ tự)
+  const now = new Date();
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+    return d.toLocaleString("en-US", { month: "short" });
+  });
+
+  // 🎨 Màu theo trend
   const trendColors = {
     up:
-      theme.palette.mode === 'light'
+      theme.palette.mode === "light"
         ? theme.palette.success.main
         : theme.palette.success.dark,
     down:
-      theme.palette.mode === 'light'
+      theme.palette.mode === "light"
         ? theme.palette.error.main
         : theme.palette.error.dark,
     neutral:
-      theme.palette.mode === 'light'
-        ? theme.palette.grey[400]
-        : theme.palette.grey[700],
+      theme.palette.mode === "light"
+        ? theme.palette.info.main
+        : theme.palette.info.dark,
   };
 
-  const labelColors = {
-    up: 'success' as const,
-    down: 'error' as const,
-    neutral: 'default' as const,
+  const chipColors = {
+    up: "success" as const,
+    down: "error" as const,
+    neutral: "default" as const,
   };
 
-  const color = labelColors[trend];
   const chartColor = trendColors[trend];
-  const trendValues = { up: '+25%', down: '-25%', neutral: '+5%' };
+  const gradientId = `gradient-${title.replace(/\s+/g, "-")}`;
+  const labelColor = chipColors[trend];
+  const trendLabel =
+    trend === "up" ? "+25%" : trend === "down" ? "-25%" : "+5%";
 
   return (
-    <Card variant="outlined" sx={{ height: '100%', flexGrow: 1 }}>
+    <Card
+      variant="outlined"
+      sx={{
+        height: "100%",
+        flexGrow: 1,
+        borderRadius: 3,
+        boxShadow: "0px 2px 6px rgba(0,0,0,0.05)",
+      }}
+    >
       <CardContent>
+        {/* Tiêu đề */}
         <Typography component="h2" variant="subtitle2" gutterBottom>
           {title}
         </Typography>
+
+        {/* Giá trị + trend chip */}
         <Stack
-          direction="column"
-          sx={{ justifyContent: 'space-between', flexGrow: '1', gap: 1 }}
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 1 }}
         >
-          <Stack sx={{ justifyContent: 'space-between' }}>
-            <Stack
-              direction="row"
-              sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <Typography variant="h4" component="p">
-                {value}
-              </Typography>
-              <Chip size="small" color={color} label={trendValues[trend]} />
-            </Stack>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {interval}
-            </Typography>
-          </Stack>
-          <Box sx={{ width: '100%', height: 50 }}>
-            <SparkLineChart
-              color={chartColor}
-              data={data}
-              area
-              showHighlight
-              showTooltip
-              xAxis={{
-                scaleType: 'band',
-                data: daysInWeek, // Use the correct property 'data' for xAxis
-              }}
-              sx={{
-                [`& .${areaElementClasses.root}`]: {
-                  fill: `url(#area-gradient-${value})`,
-                },
-              }}
-            >
-              <AreaGradient color={chartColor} id={`area-gradient-${value}`} />
-            </SparkLineChart>
-          </Box>
+          <Typography variant="h4" component="p" fontWeight={700}>
+            {value}
+          </Typography>
+          {/* <Chip size="small" color={labelColor} label={trendLabel} /> */}
         </Stack>
+
+        <Typography variant="caption" sx={{ color: "text.secondary" }}>
+          {interval}
+        </Typography>
+
+        {/* SparkLineChart */}
+        <Box sx={{ width: "100%", height: 60, mt: 2 }}>
+          <SparkLineChart
+            data={data}
+            area
+            showHighlight
+            showTooltip
+            color={chartColor}
+            xAxis={{
+              scaleType: "band",
+              data: months,
+            }}
+            sx={{
+              [`& .${areaElementClasses.root}`]: {
+                fill: `url(#${gradientId})`,
+              },
+            }}
+          >
+            <AreaGradient color={chartColor} id={gradientId} />
+          </SparkLineChart>
+        </Box>
       </CardContent>
     </Card>
   );

@@ -11,6 +11,11 @@ import NotificationsProvider from "../../hooks/useNotifications/NotificationsPro
 import DialogsProvider from "../../hooks/useDialogs/DialogsProvider";
 import { Route, Routes } from "react-router-dom";
 import ProjectShow from "../../components/home/ProjectShow";
+import CampaignPage from "../../components/home/campaign_home/CampaignPage";
+import TesterPage from "../../components/home/tester_home/TesterPage";
+import CompanyPage from "../../components/home/company/CompanyPage";
+import FAQPage from "../../components/home/faq/FAQPage";
+import PricingPage from "../../components/home/pricing/PricingPage";
 
 export default function Home(props: { disableCustomTheme?: boolean }) {
   return (
@@ -31,6 +36,11 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
             <Routes>
               <Route index element={<MainContent />} />
               <Route path="" element={<MainContent />} />
+              <Route path="campaigns" element={<CampaignPage />} />
+              <Route path="tester" element={<TesterPage />} />
+              <Route path="company" element={<CompanyPage />} />
+              <Route path="faq" element={<FAQPage />} />
+              <Route path="pricing" element={<PricingPage />} />
               <Route path="project/:projectId" element={<ProjectShow />} />
               {/* Fallback route nếu không khớp */}
               <Route path="*" element={<MainContent />} />
