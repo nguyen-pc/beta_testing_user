@@ -55,6 +55,7 @@ const CampaignPage = () => {
 
         setActiveCampaigns(activeRes.data?.result || []);
         setUpcomingCampaigns(upcomingRes.data?.result || []);
+        console.log(activeCampaigns);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
       } finally {
@@ -177,7 +178,13 @@ const CampaignPage = () => {
             campaigns={recommendedCampaigns}
           />
         ) : (
-          <Typography color="text.secondary">No campaigns found.</Typography>
+          <>
+            <Typography variant="h5" fontWeight={600} mb={3}>
+              Recommend
+              <span style={{ color: "#1976d2" }}> Campaign</span>
+            </Typography>
+            <Typography color="text.secondary">No campaigns found.</Typography>
+          </>
         )}
 
         {!profile && (

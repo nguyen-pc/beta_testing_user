@@ -8,10 +8,20 @@ import {
   MenuItem,
   Alert,
   CircularProgress,
+  Dialog,
+  IconButton,
 } from "@mui/material";
 import { useAppSelector } from "../../redux/hooks";
-import { callCreateBugReport, callGetBugTypes } from "../../config/api";
+import {
+  callCreateBugReport,
+  callGetBugTypes,
+  uploadFileBug,
+  callCreateBugReportDevice, // 🧩 import thêm
+} from "../../config/api";
 import ReactQuill from "react-quill";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 import UserBugReportList from "./UserBugReportList";
 
 interface BugType {
@@ -42,6 +52,13 @@ export default function CreateBugReport({
     bugTypeId: "",
   });
 
+  // 🧩 Form thiết bị
+  const [deviceData, setDeviceData] = useState({
+    device: "",
+    os: "",
+    browser: "",
+  });
+
   const [bugTypes, setBugTypes] = useState<BugType[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingBugTypes, setLoadingBugTypes] = useState(false);
@@ -51,13 +68,17 @@ export default function CreateBugReport({
     text: string;
   } | null>(null);
 
-  // Load bug types khi component mount
+  // File upload tạm
+  const [tempFiles, setTempFiles] = useState<File[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   useEffect(() => {
     const loadBugTypes = async () => {
       setLoadingBugTypes(true);
       try {
         const res = await callGetBugTypes();
-        const data = res.data.data || res.data; // fallback nếu backend không bọc "data"
+        const data = res.data.data || res.data;
         setBugTypes(data);
       } catch (err) {
         console.warn("Failed to load bug types:", err);
@@ -75,6 +96,26 @@ export default function CreateBugReport({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDeviceChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setDeviceData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRemoveFile = (index: number) => {
+    const newFiles = [...tempFiles];
+    newFiles.splice(index, 1);
+    setTempFiles(newFiles);
+  };
+
+  const handlePreview = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setPreviewOpen(true);
+  };
+
+  // 🧠 Submit bug + upload file + upload device
   const handleSubmit = async () => {
     setMessage(null);
     setLoading(true);
@@ -86,16 +127,41 @@ export default function CreateBugReport({
         campaignId,
         status: "IN_PROGRESS",
       };
-      console.log("Submitting bug report with payload:", payload);
 
+      // 1️⃣ Tạo bug report
       const res = await callCreateBugReport(payload);
-      console.log("Bug report created:", res.data);
-      setReloadFlag((prev) => !prev);
+      const newBugId = res.data.data?.id || res.data.id;
+      console.log("✅ Bug created:", newBugId);
+
+      // 2️⃣ Upload file
+      if (tempFiles.length > 0 && newBugId) {
+        for (const file of tempFiles) {
+          await uploadFileBug(file, newBugId, user.id);
+          console.log("Uploaded file:", file.name);
+        }
+      }
+
+      // 3️⃣ Upload device info
+      if (
+        newBugId &&
+        (deviceData.device || deviceData.os || deviceData.browser)
+      ) {
+        await callCreateBugReportDevice({
+          bugId: newBugId,
+          device: deviceData.device,
+          os: deviceData.os,
+          browser: deviceData.browser,
+        });
+        console.log("✅ Uploaded device info:", deviceData);
+      }
 
       setMessage({
         type: "success",
         text: "Bug report submitted successfully!",
       });
+      setTempFiles([]);
+      setDeviceData({ device: "", os: "", browser: "" });
+      setReloadFlag((prev) => !prev);
       if (onSuccess) onSuccess();
 
       // Reset form
@@ -108,7 +174,6 @@ export default function CreateBugReport({
         expectedResult: "",
         actualResult: "",
         bugTypeId: "",
-        assigneeId: "",
       });
     } catch (err: any) {
       setMessage({
@@ -128,7 +193,6 @@ export default function CreateBugReport({
           borderRadius: 3,
           boxShadow: 4,
           backgroundColor: "#fff",
-          // maxWidth: "850px",
           mx: "auto",
           my: 3,
         }}
@@ -142,6 +206,7 @@ export default function CreateBugReport({
         </Typography>
 
         <Stack spacing={2}>
+          {/* ======================= BUG INFO ======================= */}
           <TextField
             label="Title"
             name="title"
@@ -167,8 +232,6 @@ export default function CreateBugReport({
             }}
           />
 
-          {/* Dropdown chọn Bug Type */}
-
           <TextField
             select
             label="Bug Type"
@@ -177,13 +240,6 @@ export default function CreateBugReport({
             onChange={handleChange}
             fullWidth
             disabled={loadingBugTypes}
-            helperText={
-              loadingBugTypes
-                ? "Loading bug types..."
-                : bugTypes.length === 0
-                ? "No bug types available"
-                : "Select a bug type"
-            }
           >
             {bugTypes.map((bt) => (
               <MenuItem key={bt.id} value={bt.id}>
@@ -221,15 +277,6 @@ export default function CreateBugReport({
             </TextField>
           </Stack>
 
-          {/* <TextField
-          label="Steps to Reproduce"
-          name="stepsToReproduce"
-          value={formData.stepsToReproduce}
-          onChange={handleChange}
-          multiline
-          rows={3}
-          fullWidth
-        /> */}
           <Typography className="mb-2">Steps to Reproduce</Typography>
           <ReactQuill
             theme="snow"
@@ -253,7 +300,6 @@ export default function CreateBugReport({
             onChange={handleChange}
             fullWidth
           />
-
           <TextField
             label="Actual Result"
             name="actualResult"
@@ -262,20 +308,126 @@ export default function CreateBugReport({
             fullWidth
           />
 
-          {message && (
-            <Alert severity={message.type} sx={{ mt: 1 }}>
-              {message.text}
-            </Alert>
-          )}
+          {/* ======================= DEVICE INFO ======================= */}
+          <Box sx={{ mt: 3 }}>
+            <Typography fontWeight={600} mb={1}>
+              Device Information
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Device"
+                name="device"
+                value={deviceData.device}
+                onChange={handleDeviceChange}
+                fullWidth
+              />
+              <TextField
+                label="OS"
+                name="os"
+                value={deviceData.os}
+                onChange={handleDeviceChange}
+                fullWidth
+              />
+              <TextField
+                label="Browser"
+                name="browser"
+                value={deviceData.browser}
+                onChange={handleDeviceChange}
+                fullWidth
+              />
+            </Stack>
+          </Box>
 
-          <Box maxWidth="850px">
+          {/* ======================= ATTACHMENTS ======================= */}
+          <Box>
+            <Typography fontWeight={600} mb={1}>
+              Attachments
+            </Typography>
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              sx={{ mb: 2 }}
+            >
+              Choose Files
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*,video/*,.pdf,.zip,.doc,.docx"
+                onChange={(e) => {
+                  if (e.target.files) setTempFiles(Array.from(e.target.files));
+                }}
+              />
+            </Button>
+
+            <Stack direction="row" spacing={2} flexWrap="wrap">
+              {tempFiles.map((file, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    border: "1px solid #ccc",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    position: "relative",
+                    cursor: "pointer",
+                    "&:hover": { borderColor: "primary.main" },
+                  }}
+                >
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemoveFile(index)}
+                    sx={{
+                      position: "absolute",
+                      top: 2,
+                      right: 2,
+                      bgcolor: "rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" color="error" />
+                  </IconButton>
+
+                  {file.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      onClick={() => handlePreview(file)}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        textAlign: "center",
+                        p: 1,
+                        width: "100%",
+                        overflow: "hidden",
+                      }}
+                      onClick={() => handlePreview(file)}
+                    >
+                      {file.name}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+
+          {message && <Alert severity={message.type}>{message.text}</Alert>}
+
+          <Box>
             <Button
               variant="contained"
               color="primary"
               onClick={handleSubmit}
               disabled={loading}
               size="large"
-              maxWidth="200px"
               sx={{ py: 1.5, fontWeight: 600 }}
               startIcon={loading && <CircularProgress size={18} />}
             >
@@ -284,6 +436,36 @@ export default function CreateBugReport({
           </Box>
         </Stack>
       </Box>
+
+      {/* 🔍 Preview Dialog */}
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        fullWidth
+        maxWidth="lg"
+      >
+        <Box sx={{ position: "relative", p: 2, bgcolor: "#000" }}>
+          <IconButton
+            onClick={() => setPreviewOpen(false)}
+            sx={{ position: "absolute", top: 10, right: 10, color: "white" }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {previewUrl?.match(/\.(mp4|webm)$/i) ? (
+            <video
+              controls
+              src={previewUrl}
+              style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
+            />
+          ) : (
+            <img
+              src={previewUrl || ""}
+              alt="preview"
+              style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
+            />
+          )}
+        </Box>
+      </Dialog>
 
       <Box sx={{ mt: 6 }}>
         <UserBugReportList

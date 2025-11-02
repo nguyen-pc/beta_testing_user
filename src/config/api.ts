@@ -434,6 +434,32 @@ export const uploadFileSurvey = (
   );
 };
 
+export const uploadFileBug = (
+  file: any,
+  bugId: number,
+  uploaderId: number
+) => {
+  const bodyFormData = new FormData();
+  bodyFormData.append("file", file);
+  bodyFormData.append("bugId", bugId.toString());
+  bodyFormData.append("uploader", uploaderId.toString());
+
+  return axios.post<IBackendRes<{ fileName: string }>>(
+    "/api/v1/attachment/bug",
+    bodyFormData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
+
+export async function callGetAttachmentsByBugId(bugId: string) {
+  console.log("callGetAttachmentsByBugId", { bugId });
+  return axios.get<IBackendRes<any>>(`/api/v1/attachment/bug/${bugId}`);
+};
+
 //update tester campaign to mark uploaded
 export async function callMarkUploadedTesterCampaign(data: any) {
   console.log("callMarkUploadedTesterCampaign", data);
@@ -441,6 +467,17 @@ export async function callMarkUploadedTesterCampaign(data: any) {
     `/api/v1/campaign/tester-campaign/upload`,
     data
   );
+}
+
+// Device
+export async function callCreateBugReportDevice(data: any) {
+  console.log("callCreateBugReportDevice", data);
+  return axios.post<IBackendRes<any>>(`/api/v1/bugs/device`, data);
+}
+
+export async function callGetBugReportDevice(bugId: string) {
+  console.log("callGetBugReportDevice", { bugId });
+  return axios.get<IBackendRes<any>>(`/api/v1/bugs/device/${bugId}`);
 }
 
 // Survey

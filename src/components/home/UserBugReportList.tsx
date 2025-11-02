@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { callGetBugByUserAndCampaign } from "../../config/api";
 import { useAppSelector } from "../../redux/hooks";
+import BugDetailDialog from "./BugDetailDialog";
 
 interface BugReport {
   id: number;
@@ -40,6 +41,13 @@ export default function UserBugReportList({
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  const [selectedBug, setSelectedBug] = useState<BugReport | null>(null);
+  const [openDetail, setOpenDetail] = useState(false);
+  const handleOpenDetail = (bug: BugReport) => {
+    setSelectedBug(bug);
+    setOpenDetail(true);
+  };
 
   useEffect(() => {
     const loadBugs = async () => {
@@ -117,69 +125,38 @@ export default function UserBugReportList({
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
-                flexWrap="wrap"
               >
                 <Typography variant="h6" fontWeight="bold">
                   {bug.title}
                 </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Chip
-                    size="small"
-                    label={bug.severity}
-                    color={
-                      bug.severity === "CRITICAL"
-                        ? "error"
-                        : bug.severity === "MAJOR"
-                        ? "warning"
-                        : "info"
-                    }
-                  />
-                  <Chip size="small" label={bug.priority} variant="outlined" />
-                  <Chip
-                    size="small"
-                    label={bug.status || "PENDING"}
-                    color={bug.status === "IN_PROGRESS" ? "primary" : "default"}
-                  />
-                </Stack>
-              </Stack>
-
-              <Divider sx={{ my: 1.5 }} />
-
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1 }}
-                dangerouslySetInnerHTML={{ __html: bug.description }}
-              />
-
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                <strong>Steps to Reproduce:</strong>
-              </Typography>
-              <Typography
-                variant="body2"
-                dangerouslySetInnerHTML={{ __html: bug.stepsToReproduce }}
-              />
-
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Expected:</strong> {bug.expectedResult}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Actual:</strong> {bug.actualResult}
-              </Typography>
-
-              <Box textAlign="right" sx={{ mt: 2 }}>
                 <Button
-                  href={`/dashboard/bug/${bug.id}`}
                   variant="outlined"
                   size="small"
+                  onClick={() => handleOpenDetail(bug)}
                 >
                   View Detail
                 </Button>
-              </Box>
+              </Stack>
+
+              <Divider sx={{ my: 1.5 }} />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                dangerouslySetInnerHTML={{ __html: bug.description }}
+              />
             </CardContent>
           </Card>
         ))}
       </Stack>
+
+      {/* 🪟 Dialog hiển thị chi tiết */}
+      {selectedBug && (
+        <BugDetailDialog
+          open={openDetail}
+          onClose={() => setOpenDetail(false)}
+          bug={selectedBug}
+        />
+      )}
     </Box>
   );
 }

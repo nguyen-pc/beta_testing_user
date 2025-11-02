@@ -111,7 +111,7 @@ export default function CampaignList() {
   }, [user]);
 
   const handleDetailClick = (campaignId: number, status: string) => {
-    if (status === "APPROVED") {
+    if (status === "APPROVED" || status === "COMPLETED") {
       navigate(`/home/detail/user/${campaignId}`);
     } else {
       alert(
@@ -132,7 +132,7 @@ export default function CampaignList() {
             campaigns.map((item, index) => {
               const campaign = item.campaign;
               return (
-                <Grid item xs={12} sm={6} md={4} key={item.id}>
+                <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
                   <StyledCard
                     onClick={() => handleDetailClick(campaign.id, item.status)}
                     variant="outlined"

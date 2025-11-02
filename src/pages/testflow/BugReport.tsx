@@ -15,6 +15,7 @@ import {
 import { useParams } from "react-router-dom";
 import {
   callGetCampaign,
+  callGetStatusCampaignsByUser,
   callGetSurveysByCampaign,
   callGetTesterSurveyStatus,
 } from "../../config/api";
@@ -22,16 +23,18 @@ import { useAppSelector } from "../../redux/hooks";
 import TestCaseExecution from "../../components/home/TestCaseExcution";
 import CreateBugReport from "../../components/home/CreateBugReport";
 import UserBugReportList from "../../components/home/UserBugReportList";
+import FileUploadVideo from "../../components/home/FileUploadVideo";
 
 export default function BugReport({ userId }: { userId: number }) {
   const { campaignId } = useParams();
   // const user = useAppSelector((s) => s.account.user);
 
-  console.log("user"+ userId)
+  console.log("user" + userId);
   const [campaign, setCampaign] = useState<any>(null);
   const [surveyStatuses, setSurveyStatuses] = useState<Record<number, boolean>>(
     {}
   );
+  const [testerCampaignData, setTesterCampaignData] = useState<any>(null);
   const [surveys, setSurveys] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -40,6 +43,12 @@ export default function BugReport({ userId }: { userId: number }) {
     setError(null);
     setIsLoading(true);
     try {
+      const testerCampaign = await callGetStatusCampaignsByUser(
+        campaignId,
+        userId
+      );
+      setTesterCampaignData(testerCampaign);
+      console.log("Tester campaign data:", testerCampaignData);
       const res = await callGetCampaign(campaignId);
       setCampaign(res.data);
       const resSurveys = await callGetSurveysByCampaign(campaignId);
@@ -47,10 +56,7 @@ export default function BugReport({ userId }: { userId: number }) {
       const statusMap: Record<number, boolean> = {};
       for (const s of resSurveys.data) {
         try {
-          const resStatus = await callGetTesterSurveyStatus(
-            userId,
-            s.surveyId
-          );
+          const resStatus = await callGetTesterSurveyStatus(userId, s.surveyId);
           console.log("Survey status response:", resStatus);
           statusMap[s.surveyId] = resStatus.data.completed;
         } catch (err) {
@@ -100,6 +106,19 @@ export default function BugReport({ userId }: { userId: number }) {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Nếu campaign không phải loại Web → hiện Upload Video */}
+      {campaign?.campaignType?.name !== "Web" && (
+        <Box sx={{ mb: 5 }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+            Upload your test video
+          </Typography>
+          <FileUploadVideo
+            campaignId={campaignId!}
+            initialVideoUrl={testerCampaignData?.data?.uploadLink}
+          />
+        </Box>
+      )}
+
       {/* Header */}
       <Stack
         direction="row"
@@ -223,13 +242,11 @@ export default function BugReport({ userId }: { userId: number }) {
           </Grid>
         )}
       </Box>
+
       {/* Tạo báo cáo lỗi mới */}
       <Box sx={{ mt: 5 }}>
         <CreateBugReport campaignId={Number(campaignId)} onSuccess={loadData} />
       </Box>
-      {/* <Box sx={{ mt: 6 }}>
-        <UserBugReportList campaignId={Number(campaignId)} />
-      </Box> */}
 
       {/* Nút quay lại */}
       <Stack direction="row" justifyContent="flex-end" sx={{ mt: 5 }}>

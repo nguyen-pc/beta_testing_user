@@ -29,6 +29,8 @@ import {
   callGetTesterCampaignStatus,
 } from "../../config/api";
 import { useAppSelector } from "../../redux/hooks";
+import parse from "html-react-parser";
+import { formatChatTimeEmail } from "../../util/timeFormatter";
 
 export default function CampaignDetail() {
   const { campaignId } = useParams();
@@ -74,19 +76,6 @@ export default function CampaignDetail() {
   }, [loadData]);
   console.log(campaign);
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "0":
-        return "Đang chờ duyệt";
-      case "1":
-        return "Đang diễn ra";
-      case "2":
-        return "Hoàn thành";
-      default:
-        return "Không xác định";
-    }
-  };
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -115,7 +104,7 @@ export default function CampaignDetail() {
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Grid container spacing={6} alignItems="center">
         {/* ======= BÊN TRÁI: NỘI DUNG CHIẾN DỊCH ======= */}
-        <Grid item xs={12} md={6}>
+        <Grid item size={{ xs: 12, sm: 12, lg: 12 }}  >
           {/* Trạng thái */}
           {/* <Chip
             label={getStatusLabel(c.status)}
@@ -146,7 +135,9 @@ export default function CampaignDetail() {
             paragraph
             sx={{ mb: 3 }}
           >
-            {campaign?.description || "Chưa có mô tả cho chiến dịch này."}
+            {campaign
+              ? parse(campaign?.description)
+              : "Chưa có mô tả cho chiến dịch này."}
           </Typography>
 
           {/* --- Thông tin chiến dịch --- */}
@@ -169,7 +160,11 @@ export default function CampaignDetail() {
               Thông tin chiến dịch
             </Typography>
 
-            <Grid container spacing={2}>
+            <Grid
+              container
+              sx={{ display: "flex", justifyContent: "space-between" }}
+              spacing={2}
+            >
               {/* Thời gian */}
               <Grid item xs={12} sm={6}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -184,7 +179,9 @@ export default function CampaignDetail() {
                   sx={{ ml: 4 }}
                 >
                   {campaign?.startDate && campaign?.endDate
-                    ? `${campaign.startDate} → ${campaign.endDate}`
+                    ? `${formatChatTimeEmail(
+                        campaign.startDate
+                      )} → ${formatChatTimeEmail(campaign.endDate)}`
                     : "Chưa cập nhật"}
                 </Typography>
               </Grid>
@@ -236,14 +233,14 @@ export default function CampaignDetail() {
                   color="text.secondary"
                   sx={{ ml: 4 }}
                 >
-                  {campaign?.rewardValue && campaign?.rewardType
-                    ? `${campaign.rewardValue} ${campaign.rewardType}`
+                  {campaign?.rewardValue
+                    ? `${campaign.rewardValue}$`
                     : "Chưa có phần thưởng"}
                 </Typography>
               </Grid>
 
               {/* Công khai */}
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item xs={12} sm={6}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   {campaign?.isPublic ? (
                     <PublicIcon color="success" />
@@ -267,7 +264,7 @@ export default function CampaignDetail() {
                     ? "Riêng tư"
                     : "Chưa xác định"}
                 </Typography>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Box>
 
@@ -327,19 +324,59 @@ export default function CampaignDetail() {
         </Dialog>
 
         {/* ======= BÊN PHẢI: HÌNH ẢNH ======= */}
-        <Grid item xs={12} md={6}>
+        <Grid item size={{ xs: 12, sm: 12, lg: 12 }} alignItems="center">
           <Box
-            component="img"
-            src="https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&fit=crop&w=900&q=80"
-            alt="Campaign Illustration"
             sx={{
-              width: "230px",
+              position: "relative",
               borderRadius: 3,
-              boxShadow: 4,
-              objectFit: "cover",
-              alignItems: "center",
+              overflow: "hidden",
+              boxShadow: "0px 4px 16px rgba(0,0,0,0.15)",
             }}
-          />
+          >
+            <Box
+              component="img"
+              src={
+                campaign?.bannerUrl
+                  ? `http://localhost:8081/storage/project-banners/${campaign.bannerUrl}`
+                  : "https://picsum.photos/800/450?random=2"
+              }
+              alt={campaign?.campaignName || "Campaign Banner"}
+              sx={{
+                width: "100%",
+                height: "auto",
+                borderRadius: 3,
+                objectFit: "cover",
+              }}
+            />
+
+            {/* overlay gradient */}
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "40%",
+                background:
+                  "linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))",
+              }}
+            />
+
+            {/* Tên project nổi trên ảnh */}
+            <Typography
+              variant="h6"
+              sx={{
+                position: "absolute",
+                bottom: 16,
+                left: 20,
+                color: "#fff",
+                fontWeight: 600,
+                textShadow: "0 2px 6px rgba(0,0,0,0.6)",
+              }}
+            >
+              {campaign?.title || "Campaign Name"}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
     </Container>
