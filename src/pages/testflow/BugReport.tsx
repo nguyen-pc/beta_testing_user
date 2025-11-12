@@ -24,6 +24,7 @@ import TestCaseExecution from "../../components/home/TestCaseExcution";
 import CreateBugReport from "../../components/home/CreateBugReport";
 import UserBugReportList from "../../components/home/UserBugReportList";
 import FileUploadVideo from "../../components/home/FileUploadVideo";
+import parse from "html-react-parser";
 
 export default function BugReport({ userId }: { userId: number }) {
   const { campaignId } = useParams();
@@ -145,7 +146,7 @@ export default function BugReport({ userId }: { userId: number }) {
           {campaign.title}
         </Typography>
         <Typography color="text.secondary" sx={{ mt: 1 }}>
-          {campaign.description || "No campaign description available."}
+          {parse(campaign.description) || "No campaign description available."}
         </Typography>
       </Box>
 

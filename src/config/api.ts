@@ -159,7 +159,6 @@ export const callGetCampaignUpcoming = () => {
   );
 };
 
-
 // Module Campaign
 export const callGetUseCasesByCampaign = (
   campaignId: string,
@@ -342,11 +341,9 @@ export async function callGetStatusCampaignsByUser(
   );
 }
 
-export async function callGetRecommendedCampaigns(userId: string) { 
+export async function callGetRecommendedCampaigns(userId: string) {
   console.log("callGetRecommendedCampaigns", userId);
-  return axios.get<IBackendRes<any>>(
-    `/api/v1/recommend/campaigns/${userId}`
-  );
+  return axios.get<IBackendRes<any>>(`/api/v1/recommend/campaigns/${userId}`);
 }
 
 // complete test case execution
@@ -434,11 +431,7 @@ export const uploadFileSurvey = (
   );
 };
 
-export const uploadFileBug = (
-  file: any,
-  bugId: number,
-  uploaderId: number
-) => {
+export const uploadFileBug = (file: any, bugId: number, uploaderId: number) => {
   const bodyFormData = new FormData();
   bodyFormData.append("file", file);
   bodyFormData.append("bugId", bugId.toString());
@@ -458,7 +451,7 @@ export const uploadFileBug = (
 export async function callGetAttachmentsByBugId(bugId: string) {
   console.log("callGetAttachmentsByBugId", { bugId });
   return axios.get<IBackendRes<any>>(`/api/v1/attachment/bug/${bugId}`);
-};
+}
 
 //update tester campaign to mark uploaded
 export async function callMarkUploadedTesterCampaign(data: any) {
@@ -581,11 +574,24 @@ export async function callRegisterCompany(companyData: any) {
   return axios.post<IBackendRes<any>>("/api/v1/company/create", companyData);
 }
 
-
 //statistic
 export async function callGetTesterDashboardStats(userId: string) {
   console.log("callGetTesterDashboardStats", { userId });
-  return axios.get<IBackendRes<any>>(
-    `/api/v1/users/${userId}/statistic`
-  );
+  return axios.get<IBackendRes<any>>(`/api/v1/users/${userId}/statistic`);
+}
+
+// setting user
+export async function callGetUserSettings(userId: string) {
+  console.log("callGetUserSettings", { userId });
+  return axios.get<IBackendRes<any>>(`/api/v1/users/${userId}`);
+}
+
+export async function callUpdateUserSettings(data: any) {
+  console.log("callUpdateUserSettings", { data });
+  return axios.put<IBackendRes<any>>(`/api/v1/users`, data);
+}
+
+export async function callChangeUserPassword(data: any) {
+  console.log("callChangeUserPassword", { data });
+  return axios.put<IBackendRes<any>>(`/api/v1/users/change-password`, data);
 }

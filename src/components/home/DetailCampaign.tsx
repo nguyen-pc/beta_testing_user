@@ -104,7 +104,62 @@ export default function CampaignDetail() {
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Grid container spacing={6} alignItems="center">
         {/* ======= BÊN TRÁI: NỘI DUNG CHIẾN DỊCH ======= */}
-        <Grid item size={{ xs: 12, sm: 12, lg: 12 }}  >
+        {/* ======= BÊN PHẢI: HÌNH ẢNH ======= */}
+        <Grid item size={{ xs: 12, sm: 12, lg: 12 }} alignItems="center">
+          <Box
+            sx={{
+              position: "relative",
+              borderRadius: 3,
+              overflow: "hidden",
+              boxShadow: "0px 4px 16px rgba(0,0,0,0.15)",
+            }}
+          >
+            <Box
+              component="img"
+              src={
+                campaign?.bannerUrl
+                  ? `http://localhost:8081/storage/project-banners/${campaign.bannerUrl}`
+                  : "https://picsum.photos/800/450?random=2"
+              }
+              alt={campaign?.campaignName || "Campaign Banner"}
+              sx={{
+                width: "100%",
+                height: "auto",
+                borderRadius: 3,
+                objectFit: "cover",
+              }}
+            />
+
+            {/* overlay gradient */}
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "40%",
+                background:
+                  "linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))",
+              }}
+            />
+
+            {/* Tên project nổi trên ảnh */}
+            <Typography
+              variant="h4"
+              sx={{
+                position: "absolute",
+                bottom: 16,
+                left: 20,
+                color: "#fff",
+                fontWeight: 600,
+                textShadow: "0 2px 6px rgba(0,0,0,0.6)",
+              }}
+            >
+              {campaign?.title || "Campaign Name"}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item size={{ xs: 12, sm: 12, lg: 12 }}>
           {/* Trạng thái */}
           {/* <Chip
             label={getStatusLabel(c.status)}
@@ -117,16 +172,6 @@ export default function CampaignDetail() {
             }
             sx={{ mb: 2 }}
           /> */}
-
-          {/* Tiêu đề */}
-          <Typography
-            variant="h4"
-            component="h1"
-            fontWeight="bold"
-            gutterBottom
-          >
-            {campaign?.title || "Tên chiến dịch chưa có"}
-          </Typography>
 
           {/* Mô tả */}
           <Typography
@@ -322,62 +367,6 @@ export default function CampaignDetail() {
             </Button>
           </DialogActions>
         </Dialog>
-
-        {/* ======= BÊN PHẢI: HÌNH ẢNH ======= */}
-        <Grid item size={{ xs: 12, sm: 12, lg: 12 }} alignItems="center">
-          <Box
-            sx={{
-              position: "relative",
-              borderRadius: 3,
-              overflow: "hidden",
-              boxShadow: "0px 4px 16px rgba(0,0,0,0.15)",
-            }}
-          >
-            <Box
-              component="img"
-              src={
-                campaign?.bannerUrl
-                  ? `http://localhost:8081/storage/project-banners/${campaign.bannerUrl}`
-                  : "https://picsum.photos/800/450?random=2"
-              }
-              alt={campaign?.campaignName || "Campaign Banner"}
-              sx={{
-                width: "100%",
-                height: "auto",
-                borderRadius: 3,
-                objectFit: "cover",
-              }}
-            />
-
-            {/* overlay gradient */}
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: "40%",
-                background:
-                  "linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))",
-              }}
-            />
-
-            {/* Tên project nổi trên ảnh */}
-            <Typography
-              variant="h6"
-              sx={{
-                position: "absolute",
-                bottom: 16,
-                left: 20,
-                color: "#fff",
-                fontWeight: 600,
-                textShadow: "0 2px 6px rgba(0,0,0,0.6)",
-              }}
-            >
-              {campaign?.title || "Campaign Name"}
-            </Typography>
-          </Box>
-        </Grid>
       </Grid>
     </Container>
   );

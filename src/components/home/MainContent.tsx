@@ -1,425 +1,302 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import AvatarGroup from "@mui/material/AvatarGroup";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Chip from "@mui/material/Chip";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import FormControl from "@mui/material/FormControl";
-import InputAdornment from "@mui/material/InputAdornment";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import { styled } from "@mui/material/styles";
+import {
+  Box,
+  Chip,
+  IconButton,
+  Typography,
+  FormControl,
+  InputAdornment,
+  OutlinedInput,
+  CircularProgress,
+  Container,
+  Grid,
+  Card,
+  CardContent,
+} from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import RssFeedRoundedIcon from "@mui/icons-material/RssFeedRounded";
-import { Button } from "@mui/material";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+
 import {
-  fetchProjectAll,
-  fetchProjectByCompany,
-} from "../../redux/slice/ProjectSlide";
-import queryString from "query-string";
-import { sfLike } from "spring-filter-query-builder";
-import { callFetchAllProjects } from "../../config/api";
+  callFetchAllProjects,
+  callGetCampaignActive,
+  callGetCampaignUpcoming,
+} from "../../config/api";
+
 import Hero from "./Hero";
-
-const cardData = [
-  {
-    img: "https://picsum.photos/800/450?random=1",
-    tag: "Engineering",
-    title: "Revolutionizing software development with cutting-edge tools",
-    description:
-      "Our latest engineering tools are designed to streamline workflows and boost productivity. Discover how these innovations are transforming the software development landscape.",
-    authors: [
-      { name: "Remy Sharp", avatar: "/static/images/avatar/1.jpg" },
-      { name: "Travis Howard", avatar: "/static/images/avatar/2.jpg" },
-    ],
-  },
-  {
-    img: "https://picsum.photos/800/450?random=2",
-    tag: "Product",
-    title: "Innovative product features that drive success",
-    description:
-      "Explore the key features of our latest product release that are helping businesses achieve their goals. From user-friendly interfaces to robust functionality, learn why our product stands out.",
-    authors: [{ name: "Erica Johns", avatar: "/static/images/avatar/6.jpg" }],
-  },
-  {
-    img: "https://picsum.photos/800/450?random=3",
-    tag: "Design",
-    title: "Designing for the future: trends and insights",
-    description:
-      "Stay ahead of the curve with the latest design trends and insights. Our design team shares their expertise on creating intuitive and visually stunning user experiences.",
-    authors: [{ name: "Kate Morrison", avatar: "/static/images/avatar/7.jpg" }],
-  },
-  {
-    img: "https://picsum.photos/800/450?random=4",
-    tag: "Company",
-    title: "Our company's journey: milestones and achievements",
-    description:
-      "Take a look at our company's journey and the milestones we've achieved along the way. From humble beginnings to industry leader, discover our story of growth and success.",
-    authors: [{ name: "Cindy Baker", avatar: "/static/images/avatar/3.jpg" }],
-  },
-  {
-    img: "https://picsum.photos/800/450?random=45",
-    tag: "Engineering",
-    title: "Pioneering sustainable engineering solutions",
-    description:
-      "Learn about our commitment to sustainability and the innovative engineering solutions we're implementing to create a greener future. Discover the impact of our eco-friendly initiatives.",
-    authors: [
-      { name: "Agnes Walker", avatar: "/static/images/avatar/4.jpg" },
-      { name: "Trevor Henderson", avatar: "/static/images/avatar/5.jpg" },
-    ],
-  },
-  {
-    img: "https://picsum.photos/800/450?random=6",
-    tag: "Product",
-    title: "Maximizing efficiency with our latest product updates",
-    description:
-      "Our recent product updates are designed to help you maximize efficiency and achieve more. Get a detailed overview of the new features and improvements that can elevate your workflow.",
-    authors: [{ name: "Travis Howard", avatar: "/static/images/avatar/2.jpg" }],
-  },
-];
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: 0,
-  height: "100%",
-  backgroundColor: (theme.vars || theme).palette.background.paper,
-  "&:hover": {
-    backgroundColor: "transparent",
-    cursor: "pointer",
-  },
-  "&:focus-visible": {
-    outline: "3px solid",
-    outlineColor: "hsla(210, 98%, 48%, 0.5)",
-    outlineOffset: "2px",
-  },
-}));
-
-const StyledCardContent = styled(CardContent)({
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  padding: 16,
-  flexGrow: 1,
-  "&:last-child": {
-    paddingBottom: 16,
-  },
-});
-
-const StyledTypography = styled(Typography)({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 2,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-});
-
-function Author({
-  authors,
-  date,
-}: {
-  authors: { name: string; avatar: string }[];
-  date: string;
-}) {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 2,
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 1,
-          alignItems: "center",
-        }}
-      >
-        <AvatarGroup max={3}>
-          {authors.map((author, index) => (
-            <Avatar
-              key={index}
-              alt={author.name}
-              src={author.avatar}
-              sx={{ width: 24, height: 24 }}
-            />
-          ))}
-        </AvatarGroup>
-        <Typography variant="caption">
-          {authors.map((author) => author.name).join(", ")}
-        </Typography>
-      </Box>
-      <Typography variant="caption">{date}</Typography>
-    </Box>
-  );
-}
-
-export function Search() {
-  return (
-    <FormControl sx={{ width: { xs: "100%", md: "25ch" } }} variant="outlined">
-      <OutlinedInput
-        size="small"
-        id="search"
-        placeholder="Search…"
-        sx={{ flexGrow: 1 }}
-        startAdornment={
-          <InputAdornment position="start" sx={{ color: "text.primary" }}>
-            <SearchRoundedIcon fontSize="small" />
-          </InputAdornment>
-        }
-        inputProps={{
-          "aria-label": "search",
-        }}
-      />
-    </FormControl>
-  );
-}
+import CampaignCarouselSection from "./campaign_home/CampaignCarouselSection";
+import ProjectCarouselSection from "./campaign_home/ProjectCarouselSection";
 
 export default function MainProject() {
-  const [projects, setProjects] = React.useState<any[]>([]);
-
-  const buildQuery = (params, sort, filter) => {
-    const q = {
-      page: params.current,
-      size: params.pageSize,
-      filter: "",
-    };
-
-    const clone = { ...params };
-    if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
-    if (clone.salary) parts.push(`salary ~ '${clone.salary}'`);
-    if (clone?.level?.length) {
-      parts.push(`${sfIn("level", clone.level).toString()}`);
-    }
-
-    if (!q.filter) delete q.filter;
-    let temp = queryString.stringify(q);
-
-    let sortBy = "";
-    if (sort && sort.name) {
-      sortBy = sort.name === "ascend" ? "sort=name,asc" : "sort=name,desc";
-    }
-    if (sort && sort.salary) {
-      sortBy =
-        sort.salary === "ascend" ? "sort=salary,asc" : "sort=salary,desc";
-    }
-    if (sort && sort.createdAt) {
-      sortBy =
-        sort.createdAt === "ascend"
-          ? "sort=createdAt,asc"
-          : "sort=createdAt,desc";
-    }
-    if (sort && sort.updatedAt) {
-      sortBy =
-        sort.updatedAt === "ascend"
-          ? "sort=updatedAt,asc"
-          : "sort=updatedAt,desc";
-    }
-
-    if (!sortBy) {
-      temp = `${temp}&sort=updatedAt,desc`;
-    } else {
-      temp = `${temp}&${sortBy}`;
-    }
-
-    return temp;
-  };
-
-  // Gọi fetchUser ban đầu
-  React.useEffect(() => {
-    const fetchProjectAll = async () => {
-      try {
-        const initialQuery = buildQuery({ current: 1, pageSize: 15 }, {}, {});
-        const res = await callFetchAllProjects(initialQuery);
-        setProjects(res.data.result);
-      } catch (error) {
-        console.error("Lỗi khi load project:", error);
-      }
-    };
-
-    fetchProjectAll();
-  }, []);
-
-  console.log("Projects in MainProject:", projects);
-
-  const [focusedCardIndex, setFocusedCardIndex] = React.useState<number | null>(
-    null
-  );
+  const [projects, setProjects] = React.useState([]);
+  const [activeCampaigns, setActiveCampaigns] = React.useState([]);
+  const [upcomingCampaigns, setUpcomingCampaigns] = React.useState([]);
+  const [filteredActive, setFilteredActive] = React.useState([]);
+  const [filteredUpcoming, setFilteredUpcoming] = React.useState([]);
+  const [selectedType, setSelectedType] = React.useState("All");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
   const navigate = useNavigate();
 
-  const handleFocus = (index: number) => {
-    setFocusedCardIndex(index);
+  // 🔹 Fetch dữ liệu
+  React.useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        const [p, active, upcoming] = await Promise.all([
+          callFetchAllProjects("page=1&size=15&sort=updatedAt,desc"),
+          callGetCampaignActive(),
+          callGetCampaignUpcoming(),
+        ]);
+
+        const projectList = p.data?.result || [];
+        const activeList = active.data?.result || [];
+        const upcomingList = upcoming.data?.result || [];
+
+        setProjects(projectList);
+        setActiveCampaigns(activeList);
+        setUpcomingCampaigns(upcomingList);
+        setFilteredActive(activeList);
+        setFilteredUpcoming(upcomingList);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  // 🔹 Danh sách campaign type
+  const campaignTypes = [
+    "All",
+    "Web",
+    "Mobile App",
+    "Game",
+    "AI Product",
+    "Other",
+  ];
+
+  // 🔹 Chuẩn hóa type
+  const normalizeType = (c) =>
+    String(c?.campaignType?.name || c?.campaignType || "").toLowerCase();
+
+  // 🔹 Lọc theo type
+  const handleFilterByType = (type) => {
+    setSelectedType(type);
+    const match = type.toLowerCase();
+
+    const filterByType = (arr) =>
+      match === "all" ? arr : arr.filter((c) => normalizeType(c) === match);
+
+    setFilteredActive(filterByType(activeCampaigns));
+    setFilteredUpcoming(filterByType(upcomingCampaigns));
   };
 
-  const handleBlur = () => {
-    setFocusedCardIndex(null);
-  };
+  // 🔹 Tìm kiếm + Lọc
+  const handleSearch = (e) => {
+    const q = e.target.value.toLowerCase();
+    setSearchQuery(q);
 
-  const handleDetailClick = (id) => {
-    console.log("Project ID:", id);
-    navigate(`/home/project/${id}`);
-  };
+    const searchFilter = (arr) => {
+      let filtered = [...arr];
 
-  const handleClick = () => {
-    console.info("You clicked the filter chip.");
+      if (selectedType !== "All") {
+        filtered = filtered.filter(
+          (c) => normalizeType(c) === selectedType.toLowerCase()
+        );
+      }
+
+      if (q.trim() !== "") {
+        filtered = filtered.filter(
+          (c) =>
+            String(c.title || "")
+              .toLowerCase()
+              .includes(q) ||
+            String(c.description || "")
+              .toLowerCase()
+              .includes(q)
+        );
+      }
+
+      return filtered;
+    };
+
+    setFilteredActive(searchFilter(activeCampaigns));
+    setFilteredUpcoming(searchFilter(upcomingCampaigns));
   };
 
   return (
     <>
       <Hero />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <Typography variant="h1" gutterBottom>
-              Project
-            </Typography>
-            <Typography>
-              Stay in the loop with the latest about our products
-            </Typography>
-          </div>
-        </div>
-        <Box
-          sx={{
-            display: { xs: "flex", sm: "none" },
-            flexDirection: "row",
-            gap: 1,
-            width: { xs: "100%", md: "fit-content" },
-            overflow: "auto",
-          }}
-        >
-          <Search />
-          <IconButton size="small" aria-label="RSS feed">
-            <RssFeedRoundedIcon />
-          </IconButton>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column-reverse", md: "row" },
-            width: "100%",
-            justifyContent: "space-between",
-            alignItems: { xs: "start", md: "center" },
-            gap: 4,
-            overflow: "auto",
-          }}
-        >
-          <Box
-            sx={{
-              display: "inline-flex",
-              flexDirection: "row",
-              gap: 3,
-              overflow: "auto",
-            }}
+      <Box sx={{ py: 8 }}>
+        <Container>
+          {/* ===== Search + Chips cùng hàng ===== */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
           >
-            <Chip onClick={handleClick} size="medium" label="All categories" />
-            <Chip
-              onClick={handleClick}
-              size="medium"
-              label="Company"
+            <Box
               sx={{
-                backgroundColor: "transparent",
-                border: "none",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 2,
+                justifyContent: "space-between",
+                mb: 5,
               }}
-            />
-            <Chip
-              onClick={handleClick}
-              size="medium"
-              label="Product"
-              sx={{
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            />
-            <Chip
-              onClick={handleClick}
-              size="medium"
-              label="Design"
-              sx={{
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            />
-            <Chip
-              onClick={handleClick}
-              size="medium"
-              label="Engineering"
-              sx={{
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: { xs: "none", sm: "flex" },
-              flexDirection: "row",
-              gap: 1,
-              width: { xs: "100%", md: "fit-content" },
-              overflow: "auto",
-            }}
-          >
-            <Search />
-            <IconButton size="small" aria-label="RSS feed">
-              <RssFeedRoundedIcon />
-            </IconButton>
-          </Box>
-        </Box>
-        <Grid container spacing={2} columns={12}>
-          {projects &&
-            projects.map((project, index) => (
-              <Grid size={{ xs: 12, md: 4 }} key={project.id}>
-                <StyledCard
-                  onClick={() => handleDetailClick(project.id)}
-                  variant="outlined"
-                  onFocus={() => handleFocus(index)}
-                  onBlur={handleBlur}
-                  tabIndex={0}
-                  className={focusedCardIndex === index ? "Mui-focused" : ""}
-                  sx={{ height: "100%" }}
-                >
-                  <CardMedia
-                    component="img"
-                    alt={project.projectName}
-                    image={project.image ? project.image : cardData[2].img}
-                    sx={{
-                      height: { sm: "auto", md: "50%" },
-                      aspectRatio: { sm: "16 / 9", md: "" },
-                    }}
+            >
+              {/* Search box */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <FormControl sx={{ width: { xs: "100%", sm: "25ch" } }}>
+                  <OutlinedInput
+                    size="small"
+                    placeholder="Search campaigns..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <SearchRoundedIcon fontSize="small" />
+                      </InputAdornment>
+                    }
                   />
-                  <StyledCardContent>
-                    <Typography gutterBottom variant="caption" component="div">
-                      {project.tag ? project.tag : "No tag"}
-                    </Typography>
-                    <Typography gutterBottom variant="h6" component="div">
-                      {project.projectName}
-                    </Typography>
-                    <StyledTypography
-                      variant="body2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {project.description}
-                    </StyledTypography>
-                  </StyledCardContent>
-                  <Author
-                    authors={project.authors ? project.authors : []}
-                    date={project.startDate ? project.startDate : ""}
+                </FormControl>
+                <IconButton size="small" aria-label="RSS feed">
+                  <RssFeedRoundedIcon />
+                </IconButton>
+              </Box>
+
+              {/* Chip filter */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1.2,
+                  justifyContent: { xs: "flex-start", sm: "flex-end" },
+                  flex: 1,
+                }}
+              >
+                {campaignTypes.map((type) => (
+                  <Chip
+                    key={type}
+                    label={type}
+                    clickable
+                    onClick={() => handleFilterByType(type)}
+                    variant={selectedType === type ? "filled" : "outlined"}
+                    color={selectedType === type ? "primary" : "default"}
+                    sx={{ fontSize: "0.85rem" }}
                   />
-                </StyledCard>
-              </Grid>
-            ))}
-        </Grid>
+                ))}
+              </Box>
+            </Box>
+          </motion.div>
+
+          {/* ===== Loading ===== */}
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {/* ===== Projects Section ===== */}
+              {projects.length > 0 && (
+                <ProjectCarouselSection
+                  title="Recent Projects"
+                  projects={projects}
+                />
+              )}
+
+              {/* ===== Filtered Campaign Sections ===== */}
+              {filteredActive.length > 0 && (
+                <CampaignCarouselSection
+                  title="Recent Campaigns"
+                  campaigns={filteredActive}
+                />
+              )}
+
+              {filteredUpcoming.length > 0 && (
+                <CampaignCarouselSection
+                  title="Upcoming Campaigns"
+                  campaigns={filteredUpcoming}
+                />
+              )}
+
+              {filteredActive.length === 0 &&
+                filteredUpcoming.length === 0 &&
+                !loading && (
+                  <Typography
+                    align="center"
+                    color="text.secondary"
+                    sx={{ py: 10 }}
+                  >
+                    No campaigns found for this type or search query.
+                  </Typography>
+                )}
+            </>
+          )}
+          {/* === HOW IT WORKS === */}
+          <Container maxWidth="lg" sx={{ py: 10 }}>
+            <Typography variant="h4" fontWeight={700} align="center" mb={6}>
+              How It Works
+            </Typography>
+            <Grid container spacing={4}>
+              {[
+                {
+                  step: "1️⃣",
+                  title: "Sign Up & Verify Profile",
+                  desc: "Create your tester account and complete your profile to get matched with the right campaigns.",
+                },
+                {
+                  step: "2️⃣",
+                  title: "Browse & Apply for Campaigns",
+                  desc: "Explore active campaigns that match your skills and apply with one click.",
+                },
+                {
+                  step: "3️⃣",
+                  title: "Wait for Approval & Access Dashboard",
+                  desc: "Once approved by the company, view campaign details and assigned test cases in your dashboard.",
+                },
+                {
+                  step: "4️⃣",
+                  title: "Test, Report & Earn Rewards",
+                  desc: "Execute test scenarios, submit bug reports and surveys, then receive your reward upon completion.",
+                },
+              ].map((item, i) => (
+                <Grid item xs={12} md={4} key={i}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: i * 0.2 }}
+                  >
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl w-[500px] h-[250px]">
+                      <CardContent sx={{ textAlign: "center", py: 5 }}>
+                        <Typography
+                          variant="h2"
+                          color="primary"
+                          fontWeight={700}
+                        >
+                          {item.step}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          fontWeight={600}
+                          sx={{ mt: 2 }}
+                        >
+                          {item.title}
+                        </Typography>
+                        <Typography color="text.secondary" sx={{ mt: 1 }}>
+                          {item.desc}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Container>
       </Box>
     </>
   );

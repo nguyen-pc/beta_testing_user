@@ -59,8 +59,7 @@ const CampaignCarouselSection = ({
   title: string;
   campaigns: any[];
 }) => {
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleDetailClick = (campaignId) => {
     console.log("Campaign ID:", campaignId);
@@ -91,14 +90,29 @@ const CampaignCarouselSection = ({
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Grid sx={{ display: "flex" }}>
-        <Typography variant="h5" fontWeight={600} mb={3}>
+      <Grid
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h5" fontWeight={700}>
           {title.split(" ")[0]}{" "}
-        <span style={{ color: "#1976d2" }}>{title.split(" ")[1]}</span>
-          {/* {title} */}
+          <span style={{ color: "#1976d2" }}>{title.split(" ")[1]}</span>
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mb: 3, ml: 3 }}>
-          View All Campaigns
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{
+            borderRadius: "9999px",
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+          onClick={() => navigate("/home/projects")}
+        >
+          View All Campaign
         </Button>
       </Grid>
 
@@ -106,7 +120,10 @@ const CampaignCarouselSection = ({
         <Slider {...settings}>
           {campaigns.map((c) => (
             <Box key={c.id} sx={{ px: 1 }}>
-              <CampaignCard onClick={() => handleDetailClick(c.id)} campaign={c} />
+              <CampaignCard
+                onClick={() => handleDetailClick(c.id)}
+                campaign={c}
+              />
             </Box>
           ))}
         </Slider>
