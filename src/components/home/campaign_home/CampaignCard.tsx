@@ -32,7 +32,7 @@ interface CampaignCardProps {
   onClick?: (campaignId: number) => void;
 }
 
-// 🧩 Card container
+//  Card container
 const StyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -48,7 +48,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-// 🧩 Card content
+//  Card content
 const StyledCardContent = styled(CardContent)({
   flex: 1,
   display: "flex",
@@ -60,7 +60,7 @@ const StyledCardContent = styled(CardContent)({
   },
 });
 
-// 🧩 Description
+//  Description
 const Description = styled("p")(({ theme }) => ({
   margin: 0,
   color: theme.palette.text.secondary,
@@ -75,7 +75,7 @@ const Description = styled("p")(({ theme }) => ({
   maxHeight: "2.8em",
 }));
 
-// 🧩 Status Badge
+// Status Badge
 const StatusBadge = styled(Box)(({ color }: { color: string }) => ({
   position: "absolute",
   top: 12,
@@ -93,7 +93,7 @@ const StatusBadge = styled(Box)(({ color }: { color: string }) => ({
 
 const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onClick }) => {
   console.log("Campaign data in CampaignCard:", campaign);
-  // 🕒 Determine campaign status based on dates
+  //  Determine campaign status based on dates
   const now = new Date();
   const start = campaign.startDate ? new Date(campaign.startDate) : null;
   const end = campaign.endDate ? new Date(campaign.endDate) : null;
@@ -135,7 +135,6 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, onClick }) => {
           }}
         />
 
-        {/* 🟢 Status badge */}
         <StatusBadge color={color}>{status}</StatusBadge>
       </Box>
 

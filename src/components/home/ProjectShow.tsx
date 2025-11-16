@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Alert,
   Avatar,
   AvatarGroup,
   Box,
@@ -24,6 +25,7 @@ import { fetchCampaignByProject } from "../../redux/slice/CampaignSlide";
 import queryString from "query-string";
 import { sfLike } from "spring-filter-query-builder";
 import parse from "html-react-parser";
+import CampaignCard from "./campaign_home/CampaignCard";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -114,6 +116,27 @@ export default function ProjectShow() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.account.user);
   const campaigns = useAppSelector((state) => state.campaign.result);
+  const [filteredCampaigns, setFilteredCampaigns] = React.useState([]);
+
+  React.useEffect(() => {
+    if (campaigns && campaigns.length > 0) {
+      const now = new Date();
+
+      const result = campaigns.filter((c) => {
+        const start = new Date(c.startDate);
+        const end = new Date(c.endDate);
+
+        return (
+          c.draft === false &&
+          c.campaignStatus === "APPROVED" &&
+          start <= now &&
+          end >= now
+        );
+      });
+
+      setFilteredCampaigns(result);
+    }
+  }, [campaigns]);
 
   const buildQuery = (params, sort, filter) => {
     const q = {
@@ -322,56 +345,23 @@ export default function ProjectShow() {
             Campaign
           </Typography>
         </div>
-        <Grid container spacing={2} columns={12}>
-          {campaigns &&
-            campaigns.map((campaign, index) => (
-              <Grid size={{ xs: 12, md: 4 }} key={campaign.id}>
-                <StyledCard
-                  onClick={() => handleDetailClick(projectId, campaign.id)}
-                  variant="outlined"
-                  onFocus={() => handleFocus(index)}
-                  onBlur={handleBlur}
-                  tabIndex={0}
-                  className={focusedCardIndex === index ? "Mui-focused" : ""}
-                  sx={{ height: "100%" }}
-                >
-                  <CardMedia
-                    component="img"
-                    alt={campaign.title}
-                    image={
-                      campaign?.bannerUrl
-                        ? `http://localhost:8081/storage/project-banners/${campaign.bannerUrl}`
-                        : "https://picsum.photos/800/450?random=2"
-                    }
-                    sx={{
-                      height: { sm: "auto", md: "50%" },
-                      aspectRatio: { sm: "16 / 9", md: "" },
-                    }}
-                  />
-                  <StyledCardContent>
-                    <Typography gutterBottom variant="caption" component="div">
-                      {campaign?.campaignType?.name
-                        ? campaign?.campaignType?.name
-                        : "No tag"}
-                    </Typography>
-                    <Typography gutterBottom variant="h6" component="div">
-                      {campaign.title}
-                    </Typography>
-                    <StyledTypography
-                      variant="body2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {parse(campaign.description)}
-                    </StyledTypography>
-                  </StyledCardContent>
-                  <Author
-                    authors={campaign.authors ? campaign.authors : []}
-                    date={campaign.startDate ? campaign.startDate : ""}
-                  />
-                </StyledCard>
-              </Grid>
-            ))}
+        <Grid container sx={{ sm: 12, md: 4, lg: 4 }}>
+          {filteredCampaigns.length === 0 ? (
+            <Grid item size={{ xs: 12, md: 12, lg: 12 }}>
+              <Alert severity="info" sx={{ mt: 1 }}>
+                No campaigns available for this project at the moment.
+              </Alert>
+            </Grid>
+          ) : (
+            filteredCampaigns.map((campaign, index) => (
+              <Box key={campaign.id} sx={{ px: 1 }}>
+                <CampaignCard
+                  onClick={() => handleDetailClick(index, campaign.id)}
+                  campaign={campaign}
+                />
+              </Box>
+            ))
+          )}
         </Grid>
       </Box>
     </Container>

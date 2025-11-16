@@ -19,6 +19,7 @@ import {
   callGetBugReportDevice,
 } from "../../config/api";
 import { useAppSelector } from "../../redux/hooks";
+import parse from "html-react-parser";
 
 interface Attachment {
   id: number;
@@ -148,7 +149,7 @@ export default function BugDetailDialog({
             />
 
             <Typography variant="body2">
-              <strong>Expected Result:</strong> {bug.expectedResult}
+              <strong>Expected Result:</strong> {parse(bug.expectedResult)}
             </Typography>
             <Typography variant="body2" sx={{ mb: 2 }}>
               <strong>Actual Result:</strong> {bug.actualResult}

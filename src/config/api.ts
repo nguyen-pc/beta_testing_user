@@ -595,3 +595,12 @@ export async function callChangeUserPassword(data: any) {
   console.log("callChangeUserPassword", { data });
   return axios.put<IBackendRes<any>>(`/api/v1/users/change-password`, data);
 }
+
+//  payment info
+export const callGetMyPaymentInfo = (userId: string) => {
+  return axios.get<IBackendRes<any>>(`/api/v1/user/payment-info/${userId}`);
+};
+
+export const callUpdateMyPaymentInfo = (data: any) => {
+  return axios.post<IBackendRes<any>>(`/api/v1/user/payment-info`, data);
+};

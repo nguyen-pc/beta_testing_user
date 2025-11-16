@@ -52,6 +52,7 @@ export default function MainProject() {
 
         const projectList = p.data?.result || [];
         const activeList = active.data?.result || [];
+        console.log("Active Campaigns:", active);
         const upcomingList = upcoming.data?.result || [];
 
         setProjects(projectList);
