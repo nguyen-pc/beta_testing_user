@@ -273,135 +273,236 @@ export default function IssueDetailView() {
       ) : (
         <>
           {/* 🧩 MIDDLE CONTENT */}
-          <Box flex={1.5} borderRight="1px solid #ddd" p={3} overflow="auto">
+          <Box
+            flex={1.5}
+            borderRight="1px solid #ddd"
+            p={3}
+            display="flex"
+            flexDirection="column"
+          >
+            {/* TITLE */}
             <Typography variant="h6" fontWeight={600}>
               {issue?.title}
             </Typography>
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2">Expected</Typography>
+            {/* EXPECTED */}
+            <Typography variant="subtitle2" fontWeight={600}>
+              Expected
+            </Typography>
             <Typography variant="body2" mb={2}>
               {issue?.expectedResult || "—"}
             </Typography>
 
-            <Typography variant="subtitle2">Actual</Typography>
+            {/* ACTUAL */}
+            <Typography variant="subtitle2" fontWeight={600}>
+              Actual
+            </Typography>
             <Typography variant="body2" mb={2}>
               {issue?.actualResult || "—"}
             </Typography>
 
-            <Typography variant="subtitle2">Description</Typography>
+            {/* DESCRIPTION */}
+            <Typography variant="subtitle2" fontWeight={600}>
+              Description
+            </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
-              {parse(issue?.description || "") || "No description"}
+              {parse(issue?.description || "")}
             </Typography>
 
             <Divider sx={{ my: 2 }} />
 
-            {/* 💬 Chat box */}
-            <List dense sx={{ maxHeight: 400, overflowY: "auto", mb: 1 }}>
-              {messages.map((msg, i) => {
-                const isOwn = msg.senderId === user.id;
-                const content = msg.content.trim();
-                const urlMatch = content.match(/https?:\/\/\S+/);
-                const url = urlMatch ? urlMatch[0] : "";
-                const isFile = !!url;
-                const isImage = /\.(jpg|jpeg|png|gif)$/i.test(url);
-                const isVideo = /\.(mp4|webm)$/i.test(url);
+            {/* CHAT SCROLL AREA */}
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0, // ⭐ Quan trọng để tránh double-scroll
+                overflowY: "auto",
+                pr: 1,
+                "&::-webkit-scrollbar": { width: 6 },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#b5b5b5",
+                  borderRadius: 3,
+                },
+              }}
+            >
+              <List dense sx={{ pb: 2 }}>
+                {messages.map((msg, i) => {
+                  const isOwn = msg.senderId === user.id;
+                  const content = msg.content.trim();
+                  const urlMatch = content.match(/https?:\/\/\S+/);
+                  const url = urlMatch ? urlMatch[0] : "";
+                  const isFile = !!url;
+                  const isImage = /\.(jpg|jpeg|png|gif)$/i.test(url);
+                  const isVideo = /\.(mp4|webm)$/i.test(url);
 
-                return (
-                  <ListItem
-                    key={i}
-                    alignItems="flex-start"
-                    sx={{
-                      justifyContent: isOwn ? "flex-end" : "flex-start",
-                      textAlign: isOwn ? "right" : "left",
-                    }}
-                  >
-                    {!isOwn && (
-                      <ListItemAvatar>
-                        <Avatar>{msg.senderName?.[0] || "?"}</Avatar>
-                      </ListItemAvatar>
-                    )}
-                    <Paper
+                  return (
+                    <ListItem
+                      key={i}
+                      alignItems="flex-start"
                       sx={{
-                        p: 1,
-                        px: 1.5,
-                        maxWidth: "70%",
-                        bgcolor: isOwn ? "primary.main" : "grey.100",
-                        color: isOwn ? "white" : "text.primary",
-                        borderRadius: 2,
+                        justifyContent: isOwn ? "flex-end" : "flex-start",
+                        textAlign: isOwn ? "right" : "left",
                       }}
                     >
-                      {isFile ? (
-                        isImage ? (
-                          <img
-                            src={url}
-                            alt="attachment"
-                            style={{ maxWidth: "100%", borderRadius: 6 }}
-                          />
-                        ) : isVideo ? (
-                          <video
-                            src={url}
-                            controls
-                            style={{ maxWidth: "100%", borderRadius: 6 }}
-                          />
-                        ) : (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: isOwn ? "#fff" : "inherit" }}
-                          >
-                            {url}
-                          </a>
-                        )
-                      ) : (
-                        <Typography variant="body2">{content}</Typography>
+                      {!isOwn && (
+                        <ListItemAvatar>
+                          <Avatar>{msg.senderName?.[0] || "?"}</Avatar>
+                        </ListItemAvatar>
                       )}
-                      <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                        {msg.createdAt ? formatChatTime(msg.createdAt) : ""}
-                      </Typography>
-                    </Paper>
 
-                    {isOwn && (
-                      <ListItemAvatar sx={{ ml: 1 }}>
-                        <Avatar>{user.name?.[0] || "U"}</Avatar>
-                      </ListItemAvatar>
-                    )}
-                  </ListItem>
-                );
-              })}
-            </List>
+                      <Paper
+                        sx={{
+                          p: 1,
+                          px: 1.5,
+                          maxWidth: "70%",
+                          bgcolor: isOwn ? "primary.main" : "grey.100",
+                          color: isOwn ? "white" : "text.primary",
+                          borderRadius: 2,
+                        }}
+                      >
+                        {isFile ? (
+                          isImage ? (
+                            <img
+                              src={url}
+                              alt="attachment"
+                              style={{ maxWidth: "100%", borderRadius: 6 }}
+                            />
+                          ) : isVideo ? (
+                            <video
+                              src={url}
+                              controls
+                              style={{ maxWidth: "100%", borderRadius: 6 }}
+                            />
+                          ) : (
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: isOwn ? "#fff" : "inherit" }}
+                            >
+                              {url}
+                            </a>
+                          )
+                        ) : (
+                          <Typography variant="body2">{content}</Typography>
+                        )}
 
-            <Stack direction="row" spacing={1} alignItems="center" mt={1}>
-              <TextField
-                value={newMsg}
-                onChange={(e) => setNewMsg(e.target.value)}
-                placeholder="Send a message"
-                fullWidth
-                size="small"
-              />
-              <input
-                type="file"
-                id="chat-file-input"
-                hidden
-                onChange={handleFileUpload}
-              />
-              <IconButton
-                onClick={() =>
-                  document.getElementById("chat-file-input")?.click()
-                }
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: "block",
+                            opacity: 0.7,
+                            mt: 0.5,
+                          }}
+                        >
+                          {msg.createdAt ? formatChatTime(msg.createdAt) : ""}
+                        </Typography>
+                      </Paper>
+
+                      {isOwn && (
+                        <ListItemAvatar sx={{ ml: 1 }}>
+                          <Avatar>{user.name?.[0] || "U"}</Avatar>
+                        </ListItemAvatar>
+                      )}
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+
+            {/* INPUT AREA */}
+            <Box
+              sx={{
+                position: "sticky",
+                bottom: 0,
+                bgcolor: "#fff",
+                pt: 1.5,
+                pb: 1.5,
+                borderTop: "1px solid #e0e0e0",
+                zIndex: 10,
+              }}
+            >
+              <Stack
+                direction="row"
+                spacing={1.5}
+                alignItems="center"
+                sx={{
+                  p: 1.2,
+                  borderRadius: 4,
+                  border: "2px solid #c7ccd1",
+                  backgroundColor: "#fafafa",
+                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+                }}
               >
-                <AttachFileIcon />
-              </IconButton>
-              <IconButton
-                onClick={handleSend}
-                color="primary"
-                disabled={!connected}
-              >
-                <SendIcon />
-              </IconButton>
-            </Stack>
+                <TextField
+                  value={newMsg}
+                  onChange={(e) => setNewMsg(e.target.value)}
+                  placeholder="Nhập tin nhắn…"
+                  fullWidth
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "#fff",
+                      borderRadius: 3,
+                      "& fieldset": {
+                        border: "1px solid #d0d7de",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#8a8f95",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#1976d2",
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                />
+
+                <input
+                  type="file"
+                  id="chat-file-input"
+                  hidden
+                  onChange={handleFileUpload}
+                />
+
+                <IconButton
+                  onClick={() =>
+                    document.getElementById("chat-file-input")?.click()
+                  }
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #d0d7de",
+                    bgcolor: "#fff",
+                    width: 42,
+                    height: 42,
+                    "&:hover": { bgcolor: "#f1f1f1" },
+                  }}
+                >
+                  <AttachFileIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+
+                <IconButton
+                  onClick={handleSend}
+                  disabled={!connected}
+                  sx={{
+                    borderRadius: 3,
+                    bgcolor: "#1976d2",
+                    color: "white",
+                    width: 42,
+                    height: 42,
+                    "&:hover": { bgcolor: "#125ea6" },
+                    "&:disabled": {
+                      bgcolor: "#9bb9d8",
+                      cursor: "not-allowed",
+                    },
+                  }}
+                >
+                  <SendIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Stack>
+            </Box>
           </Box>
 
           {/* 🧱 RIGHT SIDEBAR */}

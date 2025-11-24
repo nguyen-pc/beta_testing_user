@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgotPassword";
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
-
+import logo from "../../../assets/logo2.png";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -39,9 +39,9 @@ export default function SignInCard() {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
 
-//   const handleClickOpen = () => {
-//     setOpen(true);
-//   };
+  //   const handleClickOpen = () => {
+  //     setOpen(true);
+  //   };
 
   const handleClose = () => {
     setOpen(false);
@@ -99,7 +99,18 @@ export default function SignInCard() {
   return (
     <Card variant="outlined">
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
-        <SitemarkIcon />
+        <Box
+          component="img"
+          src={logo}
+          alt="BetaTesting Logo"
+          sx={{
+            width: 160,
+            height: "auto",
+            objectFit: "contain",
+            borderRadius: 2,
+            // mb: 3,
+          }}
+        />
       </Box>
       <Typography
         component="h1"
@@ -188,12 +199,8 @@ export default function SignInCard() {
         <Typography sx={{ textAlign: "center" }}>
           Do have an account?{" "}
           <span>
-            <Link
-              href="/signin"
-              variant="body2"
-              sx={{ alignSelf: "center" }}
-            >
-              Sign in 
+            <Link href="/signin" variant="body2" sx={{ alignSelf: "center" }}>
+              Sign in
             </Link>
           </span>
         </Typography>

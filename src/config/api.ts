@@ -604,3 +604,8 @@ export const callGetMyPaymentInfo = (userId: string) => {
 export const callUpdateMyPaymentInfo = (data: any) => {
   return axios.post<IBackendRes<any>>(`/api/v1/user/payment-info`, data);
 };
+
+//reward
+export const callGetMyTesterRewards = () => {
+  return axios.get<IBackendRes<any>>("/api/v1/tester-rewards/me");
+}

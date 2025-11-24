@@ -171,7 +171,7 @@ export default function BugReport({ userId }: { userId: number }) {
         ) : (
           <Grid container spacing={2}>
             {surveys.map((survey) => (
-              <Grid item xs={12} sm={6} md={4} key={survey.surveyId}>
+              <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={survey.surveyId}>
                 <Card
                   sx={{
                     borderRadius: 2,

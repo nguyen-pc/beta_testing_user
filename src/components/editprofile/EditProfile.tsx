@@ -165,10 +165,11 @@ export default function EditProfileForm({
       gender: form.gender.toUpperCase(),
     };
 
-    console.log("🧾 Mapped UserProfile Data:", userId, mappedProfile);
-    const res = await callCreateUserProfile(userId,mappedProfile);
+    console.log("Mapped UserProfile Data:", userId, mappedProfile);
+    const res = await callCreateUserProfile(userId, mappedProfile);
     console.log("Created user profile:", res.data);
     navigate(`/profile`);
+    window.location.reload();
     onSave(form);
   };
 
@@ -277,7 +278,7 @@ export default function EditProfileForm({
           <MenuItem value="Unemployed">Unemployed</MenuItem>
         </Select>
       </FormControl>
-       <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="normal">
         <FormLabel>Education level</FormLabel>
         <Select
           value={form.education}

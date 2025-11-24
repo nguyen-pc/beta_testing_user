@@ -21,6 +21,7 @@ import { useAppSelector } from "../../../redux/hooks";
 import { useDispatch } from "react-redux";
 import { setUserLoginInfo } from "../../../redux/slice/accountSlide";
 import { callLogin, callLoginGoogle } from "../../../config/api";
+import logo from "../../../assets/logo2.png";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -53,6 +54,9 @@ export default function SignInCard() {
 
   let location = useLocation();
   let params = new URLSearchParams(location.search);
+  const navigate = useNavigate();
+
+  const redirect = new URLSearchParams(location.search).get("redirect");
   const callback = params?.get("callback");
 
   useEffect(() => {
@@ -96,7 +100,7 @@ export default function SignInCard() {
       console.log("isAuthenticated", isAuthenticated);
       <Alert severity="success">Đăng nhập tài khoản thành công!</Alert>;
       // navigate(callback ? callback : "/");
-      window.location.href = callback ? callback : "/";
+      window.location.href = redirect ? redirect : "/";
     } else {
       <Alert variant="filled" severity="error">
         Có lỗi xảy ra, vui lòng thử lại!
@@ -126,7 +130,7 @@ export default function SignInCard() {
       localStorage.setItem("access_token", res.data.access_token);
       dispatch(setUserLoginInfo(res.data.user));
       <Alert severity="success">Đăng nhập tài khoản thành công!</Alert>;
-      window.location.href = callback ? callback : "/";
+      window.location.href = redirect ? redirect : "/";
     } else {
       notification.error({
         message: "Có lỗi xảy ra",
@@ -165,7 +169,18 @@ export default function SignInCard() {
   return (
     <Card variant="outlined">
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
-        <SitemarkIcon />
+        <Box
+          component="img"
+          src={logo}
+          alt="BetaTesting Logo"
+          sx={{
+            width: 160,
+            height: "auto",
+            objectFit: "contain",
+            borderRadius: 2,
+            // mb: 3,
+          }}
+        />
       </Box>
       <Typography
         component="h1"

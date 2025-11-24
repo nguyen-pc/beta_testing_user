@@ -206,16 +206,16 @@ export default function BasicTabs() {
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Checklist" {...a11yProps(0)} />
-          <Tab label="Test history" {...a11yProps(1)} />
-          <Tab label="My Profile" {...a11yProps(2)} />
+          <Tab label="My Profile" {...a11yProps(0)} />
+          <Tab label="Checklist" {...a11yProps(1)} />
+          <Tab label="Test history" {...a11yProps(2)} />
         </Tabs>
       </Box>
-      <CustomTabPanel value={value} index={0}>
+      <CustomTabPanel value={value} index={1}>
         <Checklist />
       </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}></CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
+      <CustomTabPanel value={value} index={2}></CustomTabPanel>
+      <CustomTabPanel value={value} index={0}>
         {!isEditing ? (
           <UserProfile profile={profile} onEdit={handleEdit} />
         ) : (

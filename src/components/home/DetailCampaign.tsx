@@ -38,6 +38,7 @@ export default function CampaignDetail() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
   const [open, setOpen] = React.useState(false);
+  const [openLogin, setOpenLogin] = React.useState(false);
   const [note, setNote] = React.useState("");
   const [joined, setJoined] = React.useState(false);
   const user = useAppSelector((state) => state.account.user);
@@ -77,6 +78,10 @@ export default function CampaignDetail() {
   console.log(campaign);
 
   const handleClickOpen = () => {
+    if (!user?.id) {
+      setOpenLogin(true);
+      return;
+    }
     setOpen(true);
   };
 
@@ -364,6 +369,36 @@ export default function CampaignDetail() {
               onClick={handleConfirmJoin}
             >
               Confirm & Join
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* DIALOG CHƯA ĐĂNG NHẬP */}
+        <Dialog
+          open={openLogin}
+          onClose={() => setOpenLogin(false)}
+          fullWidth
+          maxWidth="xs"
+        >
+          <DialogTitle>Bạn chưa đăng nhập</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Bạn cần đăng nhập để tham gia chiến dịch này.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenLogin(false)}>Hủy</Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                const currentUrl =
+                  window.location.pathname + window.location.search;
+                window.location.href = `/signin?redirect=${encodeURIComponent(
+                  currentUrl
+                )}`;
+              }}
+            >
+              Đăng nhập ngay
             </Button>
           </DialogActions>
         </Dialog>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Grid,
@@ -12,11 +12,12 @@ import Copyright from "../../internals/components/Copyright";
 import PageViewsBarChart from "./PageViewsBarChart";
 import SessionsChart from "./SessionsChart";
 import { useAppSelector } from "../../redux/hooks";
-import { callGetTesterDashboardStats } from "../../config/api";
+import { callGetMyTesterRewards, callGetTesterDashboardStats } from "../../config/api";
 
 export default function MainGrid() {
   const user = useAppSelector((state) => state.account.user);
   const [stats, setStats] = useState<any>(null);
+  const [rewards, setRewards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
 
@@ -28,6 +29,8 @@ export default function MainGrid() {
         setLoading(true);
         const res = await callGetTesterDashboardStats(user.id);
         setStats(res.data);
+        const resRewards = await callGetMyTesterRewards();
+        setRewards(resRewards.data);
       } catch (error) {
         console.error("Error fetching tester dashboard stats:", error);
       } finally {
@@ -36,6 +39,19 @@ export default function MainGrid() {
     };
     fetchStats();
   }, [user]);
+
+  const summary = useMemo(() => {
+    const total = rewards.reduce(
+      (s, r) => s + (r.amount || 0) + (r.bonusAmount || 0),
+      0
+    );
+    const paid = rewards
+      .filter((r) => r.status === "PAID")
+      .reduce((s, r) => s + (r.amount || 0) + (r.bonusAmount || 0), 0);
+    const failedCount = rewards.filter((r) => r.status === "FAILED").length;
+    const pendingCount = rewards.filter((r) => r.status === "PENDING").length;
+    return { total, paid, failedCount, pendingCount };
+  }, [rewards]);
 
   if (loading) {
     return (
@@ -88,7 +104,7 @@ export default function MainGrid() {
     },
     {
       title: "Total Rewards",
-      value: `${stats.totalRewards?.toLocaleString("en-US")} ₫`,
+      value: `$${summary.total}`,
       interval: "Approved rewards",
       trend: "up",
       color: theme.palette.success.main,
@@ -122,7 +138,6 @@ export default function MainGrid() {
             />
           </Grid>
         ))}
-
 
         {/* === Biểu đồ phụ === */}
         {/* <Grid xs={12} md={6}>

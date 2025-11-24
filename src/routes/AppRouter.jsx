@@ -20,6 +20,7 @@ import SurveyForm from "../pages/testflow/ViewQuestion";
 import ThankYouPage from "../pages/testflow/ThankYouPage";
 import Checkout from "../pages/profile/Checkout";
 import SettingUserPage from "../pages/dashboard/SettingUserPage";
+import Reward from "../pages/dashboard/reward";
 
 export default function AppRouter() {
   return (
@@ -45,6 +46,7 @@ export default function AppRouter() {
         <Route path="/dashboard/user/*" element={<User />} />
         <Route path="/dashboard/message/*" element={<Message />} />
         <Route path="/dashboard/setting/*" element={<SettingUserPage />} />
+        <Route path="/dashboard/reward/*" element={<Reward />} />
 
         <Route path="/testflow/*" element={<TestFlow />} />
         <Route

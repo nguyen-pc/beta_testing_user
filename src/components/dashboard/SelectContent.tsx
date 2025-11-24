@@ -8,7 +8,7 @@ export default function SelectContent() {
   const { campaignId, projectId } = useParams();
 
   const handleBack = () => {
-    navigate(`/dashboard/project/${projectId}`);
+    navigate("/home");
   };
 
   return (
@@ -34,6 +34,20 @@ export default function SelectContent() {
           // mb: 3,
         }}
       />
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleBack}
+        sx={{
+          textTransform: "none",
+          fontWeight: 500,
+          borderRadius: 2,
+          px: 3,
+        }}
+      >
+        ← Back to Home
+      </Button>
     </Box>
   );
 }

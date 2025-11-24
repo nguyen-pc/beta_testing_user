@@ -17,6 +17,7 @@ import Link from "@mui/material/Link";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { callLogout } from "../../config/api";
 import { setLogoutAction } from "../../redux/slice/accountSlide";
+import logo from "../../../src/assets/logo2.png";
 import { useNavigate } from "react-router-dom";
 import { Alert, List, ListItemButton, ListItemText } from "@mui/material";
 import Popover from "@mui/material/Popover";
@@ -100,7 +101,18 @@ export default function AppAppBar() {
             sx={{ flexGrow: 1, display: "flex", alignItems: "center", px: 0 }}
           >
             <Box onClick={() => navigate("/home")} sx={{ cursor: "pointer" }}>
-              <Sitemark />
+              <Box
+                component="img"
+                src={logo}
+                alt="BetaTesting Logo"
+                sx={{
+                  width: 100,
+                  height: "auto",
+                  objectFit: "contain",
+                  borderRadius: 2,
+                  // mb: 3,
+                }}
+              />
             </Box>
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <Button
@@ -209,14 +221,14 @@ export default function AppAppBar() {
                     >
                       <ListItemText primary="Profile" />
                     </ListItemButton>
-                    <ListItemButton
+                    {/* <ListItemButton
                       onClick={() => {
                         navigate("/payments");
                         handleDialogClose();
                       }}
                     >
                       <ListItemText primary="Payments" />
-                    </ListItemButton>
+                    </ListItemButton> */}
                     <ListItemButton
                       onClick={() => {
                         handleLogout();
