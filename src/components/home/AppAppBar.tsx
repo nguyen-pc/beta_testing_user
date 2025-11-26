@@ -270,11 +270,19 @@ export default function AppAppBar() {
                     <CloseRoundedIcon />
                   </IconButton>
                 </Box>
-                <MenuItem>Features</MenuItem>
-                <MenuItem>Testimonials</MenuItem>
-                <MenuItem>Highlights</MenuItem>
-                <MenuItem>Pricing</MenuItem>
-                <MenuItem>FAQ</MenuItem>
+                <MenuItem onClick={() => navigate("/home/campaigns")}>
+                  Campaign
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/home/tester")}>
+                  Tester
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/home/company")}>
+                  Company
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/home/pricing")}>
+                  Pricing
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/home/faq")}>FAQ</MenuItem>
                 <MenuItem>Blog</MenuItem>
                 <Divider sx={{ my: 3 }} />
                 <MenuItem>
