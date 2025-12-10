@@ -143,8 +143,9 @@ export default function CampaignList() {
                       component="img"
                       alt={campaign.title}
                       image={
-                        campaign.image ||
-                        "https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&fit=crop&w=900&q=80"
+                        campaign?.bannerUrl
+                          ? `http://localhost:8081/storage/project-banners/${campaign.bannerUrl}`
+                          : "https://picsum.photos/800/450?random=5"
                       }
                       sx={{
                         height: 180,

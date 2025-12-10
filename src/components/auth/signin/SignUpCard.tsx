@@ -10,8 +10,11 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgotPassword";
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
+import { GoogleIcon } from "./CustomIcons";
 import logo from "../../../assets/logo2.png";
+import { callRegister } from "../../../config/api";
+import { useNavigate } from "react-router-dom";
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -24,10 +27,6 @@ const Card = styled(MuiCard)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     width: "450px",
   },
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
 }));
 
 export default function SignInCard() {
@@ -37,32 +36,15 @@ export default function SignInCard() {
   const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
 
-  //   const handleClickOpen = () => {
-  //     setOpen(true);
-  //   };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-  };
-
+  // Clean validation
   const validateInputs = () => {
+    const username = document.getElementById("username") as HTMLInputElement;
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
-    const username = document.getElementById("username") as HTMLInputElement;
 
     let isValid = true;
 
@@ -96,6 +78,24 @@ export default function SignInCard() {
     return isValid;
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Quan trọng: chặn reload trang
+
+    if (!validateInputs()) return;
+
+    const data = new FormData(event.currentTarget);
+
+    const res = await callRegister(
+      data.get("username"),
+      data.get("email"),
+      data.get("password")
+    );
+    console.log("Register response:", res);
+    if (res?.statusCode === 201) {
+      navigate("/signin");
+    }
+  };
+
   return (
     <Card variant="outlined">
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
@@ -105,13 +105,12 @@ export default function SignInCard() {
           alt="BetaTesting Logo"
           sx={{
             width: 160,
-            height: "auto",
             objectFit: "contain",
             borderRadius: 2,
-            // mb: 3,
           }}
         />
       </Box>
+
       <Typography
         component="h1"
         variant="h4"
@@ -119,6 +118,7 @@ export default function SignInCard() {
       >
         Sign Up
       </Typography>
+
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -131,17 +131,13 @@ export default function SignInCard() {
             error={usernameError}
             helperText={usernameErrorMessage}
             id="username"
-            type="username"
             name="username"
             placeholder="username"
-            autoComplete="username"
-            autoFocus
             required
             fullWidth
-            variant="outlined"
-            color={usernameError ? "error" : "primary"}
           />
         </FormControl>
+
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -151,61 +147,41 @@ export default function SignInCard() {
             type="email"
             name="email"
             placeholder="your@email.com"
-            autoComplete="email"
-            autoFocus
             required
             fullWidth
-            variant="outlined"
-            color={emailError ? "error" : "primary"}
           />
         </FormControl>
+
         <FormControl>
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            {/* <Link
-              component="button"
-              type="button"
-              onClick={handleClickOpen}
-              variant="body2"
-              sx={{ alignSelf: "baseline" }}
-            >
-              Forgot your password?
-            </Link> */}
-          </Box>
+          <FormLabel htmlFor="password">Password</FormLabel>
           <TextField
             error={passwordError}
             helperText={passwordErrorMessage}
+            id="password"
+            type="password"
             name="password"
             placeholder="••••••"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            autoFocus
             required
             fullWidth
-            variant="outlined"
-            color={passwordError ? "error" : "primary"}
           />
         </FormControl>
-        <ForgotPassword open={open} handleClose={handleClose} />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          onClick={validateInputs}
-        >
-          Sign in
+
+        <ForgotPassword open={open} handleClose={() => setOpen(false)} />
+
+        <Button type="submit" fullWidth variant="contained">
+          Sign up
         </Button>
+
         <Typography sx={{ textAlign: "center" }}>
           Do have an account?{" "}
-          <span>
-            <Link href="/signin" variant="body2" sx={{ alignSelf: "center" }}>
-              Sign in
-            </Link>
-          </span>
+          <Link href="/signin" variant="body2">
+            Sign in
+          </Link>
         </Typography>
       </Box>
+
       <Divider>or</Divider>
+
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Button
           fullWidth
@@ -214,14 +190,6 @@ export default function SignInCard() {
           startIcon={<GoogleIcon />}
         >
           Sign up with Google
-        </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign up with Facebook")}
-          startIcon={<FacebookIcon />}
-        >
-          Sign up with Facebook
         </Button>
       </Box>
     </Card>

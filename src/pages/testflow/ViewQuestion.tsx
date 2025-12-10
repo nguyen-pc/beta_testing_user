@@ -169,7 +169,7 @@ export default function SurveyForm() {
         await callCreateTesterSurvey(payloadTesterSurvey);
       }
 
-      alert("✅ Nộp khảo sát thành công!");
+      alert(" Nộp khảo sát thành công!");
       navigate(`/testflow/${campaignId}/view_question/${surveyId}/thank-you`);
     } catch (err) {
       console.error("❌ Submit error:", err);

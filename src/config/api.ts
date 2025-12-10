@@ -62,6 +62,7 @@ export const callRegisterRecruiter = (
 };
 
 export const callLogin = (username: string, password: string) => {
+  console.log("callLogin", { username, password });
   return axios.post<IBackendRes<IAccount>>("/api/v1/auth/login", {
     username,
     password,
@@ -608,4 +609,19 @@ export const callUpdateMyPaymentInfo = (data: any) => {
 //reward
 export const callGetMyTesterRewards = () => {
   return axios.get<IBackendRes<any>>("/api/v1/tester-rewards/me");
-}
+};
+
+//notification
+export const callFetchUserNotifications = (userId: string) => {
+  console.log("callFetchUserNotifications", { userId });
+  return axios.get<IBackendRes<Notification[]>>(
+    `/api/v1/notifications/${userId}`
+  );
+};
+
+export const callMarkNotificationAsRead = (notificationId: string) => {
+  console.log("callMarkNotificationAsRead", { notificationId });
+  return axios.put<IBackendRes<null>>(
+    `/api/v1/notifications/${notificationId}/read`
+  );
+};

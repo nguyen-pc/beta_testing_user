@@ -25,7 +25,7 @@ function RecordingTipsInner() {
       >
         <iframe
           title="recording-tips"
-          src="https://www.youtube.com/embed/2Vv-BfVoq4g"
+          src="https://www.youtube.com/embed/iF00yyCz7Bg"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           style={{

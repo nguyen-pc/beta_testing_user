@@ -76,69 +76,87 @@ export default function SignInCard() {
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
-    event.preventDefault();
-    setIsSubmit(true);
+    event.preventDefault(); // Ngăn reload trang
 
     const data = new FormData(event.currentTarget);
-    const res = await callLogin(data.get("email"), data.get("password"));
 
-    setIsSubmit(false);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-    if (res?.data) {
-      // Lưu access token vào localStorage
-      localStorage.setItem("access_token", res.data.access_token);
-      // Cập nhật thông tin user qua Redux
-      console.log("Response from server:", res.data?.user);
-      dispatch(setUserLoginInfo(res.data?.user));
-      console.log("isAuthenticated", isAuthenticated);
-      <Alert severity="success">Đăng nhập tài khoản thành công!</Alert>;
-      // navigate(callback ? callback : "/");
-      window.location.href = redirect ? redirect : "/";
+    const email = data.get("email")?.toString().trim() || "";
+    const password = data.get("password")?.toString().trim() || "";
+
+    // ---- VALIDATION ----
+    let valid = true;
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setEmailError(true);
+      setEmailErrorMessage("Please enter a valid email address.");
+      valid = false;
     } else {
-      <Alert variant="filled" severity="error">
-        Có lỗi xảy ra, vui lòng thử lại!
-      </Alert>;
-      // notification.error({
-      //   message: "Có lỗi xảy ra",
-      //   description:
-      //     res.message && Array.isArray(res.message)
-      //       ? res.message[0]
-      //       : res.message,
-      //   duration: 5,
-      // });
+      setEmailError(false);
+      setEmailErrorMessage("");
     }
-  };
 
-  const handleGoogleLoginSuccess = async (credentialResponse) => {
-    const googleToken = credentialResponse.credential; // Lấy Google ID Token
-    console.log("Google Token:", googleToken);
+    if (!password) {
+      setPasswordError(true);
+      setPasswordErrorMessage("Password must be at least 6 characters long.");
+      valid = false;
+    } else {
+      setPasswordError(false);
+      setPasswordErrorMessage("");
+    }
 
-    // Gửi token đến server để xác minh
+    if (!valid) return; // STOP submit khi lỗi
+
+    // API LOGIN
     setIsSubmit(true);
-    const res = await callLoginGoogle(googleToken);
+    let res;
+
+    try {
+      console.log(" Sending API request...");
+      res = await callLogin(email, password);
+      console.log(" API Success Response:", res);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+
     setIsSubmit(false);
-    console.log("Response from server:", res.data?.user);
 
     if (res?.data) {
+      // Lưu token
       localStorage.setItem("access_token", res.data.access_token);
+
+      // Redux: lưu user
       dispatch(setUserLoginInfo(res.data.user));
-      <Alert severity="success">Đăng nhập tài khoản thành công!</Alert>;
+
+      // Redirect
       window.location.href = redirect ? redirect : "/";
     } else {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        description: data.message || "Không thể đăng nhập bằng Google",
-        duration: 5,
-      });
+      alert("Đăng nhập thất bại!");
     }
   };
+
+  // const handleGoogleLoginSuccess = async (credentialResponse) => {
+  //   const googleToken = credentialResponse.credential; // Lấy Google ID Token
+  //   console.log("Google Token:", googleToken);
+
+  //   // Gửi token đến server để xác minh
+  //   setIsSubmit(true);
+  //   const res = await callLoginGoogle(googleToken);
+  //   setIsSubmit(false);
+  //   console.log("Response from server:", res.data?.user);
+
+  //   if (res?.data) {
+  //     localStorage.setItem("access_token", res.data.access_token);
+  //     dispatch(setUserLoginInfo(res.data.user));
+  //     <Alert severity="success">Đăng nhập tài khoản thành công!</Alert>;
+  //     window.location.href = redirect ? redirect : "/";
+  //   } else {
+  //     notification.error({
+  //       message: "Có lỗi xảy ra",
+  //       description: data.message || "Không thể đăng nhập bằng Google",
+  //       duration: 5,
+  //     });
+  //   }
+  // };
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
@@ -249,7 +267,7 @@ export default function SignInCard() {
           type="submit"
           fullWidth
           variant="contained"
-          onClick={validateInputs}
+          // onClick={validateInputs}
         >
           Sign in
         </Button>
@@ -273,7 +291,7 @@ export default function SignInCard() {
           Sign in with Google
         </Button> */}
         <GoogleLogin
-          onSuccess={handleGoogleLoginSuccess}
+          // onSuccess={handleGoogleLoginSuccess}
           onError={() => {
             <Alert variant="outlined" severity="error">
               This is an outlined error Alert.
