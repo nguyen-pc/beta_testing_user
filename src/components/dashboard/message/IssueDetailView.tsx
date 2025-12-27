@@ -348,7 +348,7 @@ export default function IssueDetailView() {
                     >
                       {!isOwn && (
                         <ListItemAvatar>
-                          <Avatar>{msg.senderName?.[0] || "?"}</Avatar>
+                          <Avatar>{msg.senderName?.[0] || "u"}</Avatar>
                         </ListItemAvatar>
                       )}
 
